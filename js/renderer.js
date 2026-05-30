@@ -1,16 +1,7 @@
 /**
- * DET Practice — Question renderers and answer extraction
+ * Question renderers — DET practice test
  */
 const Renderer = (function () {
-  let hintEl = null;
-  let revealEl = null;
-
-  function escapeHtml(s) {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
   function headerHtml(q) {
     return `
       <div class="q-header">
@@ -21,94 +12,43 @@ const Renderer = (function () {
       </div>`;
   }
 
-  function mountExtras(container, q, state) {
-    hintEl = container.querySelector('.hint-box');
-    revealEl = container.querySelector('.reveal-box');
-    if (state.showHint && !hintEl) {
+  function mountHintReveal(container, q, ui, locked) {
+    if (ui.showHint) {
       const h = document.createElement('div');
       h.className = 'hint-box';
       h.innerHTML = `<strong>Hint:</strong> ${escapeHtml(q.hint || '')}`;
       container.appendChild(h);
     }
-    if (state.showReveal && !revealEl) {
+    if (ui.showReveal) {
       const r = document.createElement('div');
       r.className = 'reveal-box';
-      r.innerHTML = buildRevealHtml(q);
+      r.innerHTML = `<strong>Answer:</strong> ${escapeHtml(Tutor.correctAnswerText(q))}`;
+      if (q.tip) r.innerHTML += `<div class="tip-box"><strong>DET tip:</strong> ${escapeHtml(q.tip)}</div>`;
       container.appendChild(r);
-      applyRevealState(container, q, state);
-    } else if (state.showReveal) {
-      applyRevealState(container, q, state);
+      applyRevealVisuals(container, q);
     }
   }
 
-  function buildRevealHtml(q) {
-    let html = '<strong>Correct answer</strong>';
-    switch (q.type) {
-      case 'read-select':
-        html += `<p>Real words: ${(q.correct || []).map(escapeHtml).join(', ')}</p>`;
-        break;
-      case 'fill-blanks':
-      case 'identify-idea':
-      case 'title-passage':
-        if (q.options && q.correct !== undefined) {
-          html += `<p>${escapeHtml(q.options[q.correct])}</p>`;
-        }
-        break;
-      case 'read-complete':
-        html += `<p>Missing letters: ${(q.gaps || []).map(g => escapeHtml(g.answer)).join(', ')}</p>`;
-        break;
-      case 'complete-sentences':
-        (q.blanks || []).forEach((b, i) => {
-          html += `<p>Blank ${i + 1}: ${escapeHtml(b.options[b.correct])}</p>`;
-        });
-        break;
-      case 'complete-passage':
-        if (q.sentences && q.correct !== undefined) {
-          html += `<p>${escapeHtml(q.sentences[q.correct])}</p>`;
-        }
-        break;
-      case 'highlight-answer':
-        if (q.sentences && q.correct !== undefined) {
-          html += `<p>${escapeHtml(q.sentences[q.correct])}</p>`;
-        }
-        break;
-      case 'write-photo':
-      case 'interactive-writing':
-      case 'writing-sample':
-      case 'read-aloud':
-      case 'speak-photo':
-      case 'read-then-speak':
-        html += `<p><strong>Sample:</strong> ${escapeHtml(q.sample || '')}</p>`;
-        break;
-      default:
-        html += '<p>See question data for answer key.</p>';
-    }
-    if (q.tip) {
-      html += `<div class="tip-box"><strong>DET tip:</strong> ${escapeHtml(q.tip)}</div>`;
-    }
-    return html;
-  }
-
-  function applyRevealState(container, q, state) {
+  function applyRevealVisuals(container, q) {
     switch (q.type) {
       case 'read-select':
         container.querySelectorAll('.word-chip').forEach(chip => {
-          const w = chip.dataset.word;
-          const isReal = (q.correct || []).includes(w);
-          chip.classList.add(isReal ? 'revealed-correct' : 'revealed-wrong');
-          if (isReal) chip.classList.add('selected');
+          const ok = (q.correct || []).includes(chip.dataset.word);
+          chip.classList.add(ok ? 'correct' : 'wrong-dim');
+          if (ok) chip.classList.add('selected');
         });
         break;
       case 'fill-blanks':
       case 'identify-idea':
       case 'title-passage':
+      case 'complete-passage':
         container.querySelectorAll('.mcq-option').forEach((el, i) => {
-          if (i === q.correct) el.classList.add('correct-reveal');
+          if (i === q.correct) el.classList.add('correct');
         });
         break;
       case 'highlight-answer':
         container.querySelectorAll('.highlight-sentence').forEach((el, i) => {
-          if (i === q.correct) el.classList.add('reveal-correct');
+          if (i === q.correct) el.classList.add('correct');
         });
         break;
       case 'read-complete':
@@ -116,7 +56,7 @@ const Renderer = (function () {
           const g = q.gaps[i];
           if (g) {
             inp.value = g.answer;
-            inp.classList.add('reveal-correct');
+            inp.classList.add('correct');
           }
         });
         break;
@@ -126,273 +66,279 @@ const Renderer = (function () {
           if (sel) sel.value = String(b.correct);
         });
         break;
-      case 'complete-passage':
-        container.querySelectorAll('.mcq-option').forEach((el, i) => {
-          if (i === q.correct) el.classList.add('correct-reveal');
-        });
-        break;
     }
   }
 
-  function renderReadSelect(q, answer, container) {
+  function renderReadSelect(q, answer, container, opts) {
     const selected = new Set(answer?.selected || []);
-    const words = q.words || [];
-    const chips = words.map(w => {
+    const locked = opts.locked;
+    const chips = (q.words || []).map(w => {
       const sel = selected.has(w.text) ? ' selected' : '';
-      return `<button type="button" class="word-chip${sel}" data-word="${escapeHtml(w.text)}">${escapeHtml(w.text)}</button>`;
+      const ok = locked && (q.correct || []).includes(w.text);
+      const bad = locked && selected.has(w.text) && !ok;
+      const cls = [sel, ok ? ' correct' : '', bad ? ' wrong' : ''].join('');
+      return `<button type="button" class="word-chip${cls}" data-word="${escapeHtml(w.text)}" ${locked ? 'disabled' : ''}>${escapeHtml(w.text)}</button>`;
     }).join('');
     container.innerHTML = headerHtml(q) + `<div class="word-grid">${chips}</div>`;
-    container.querySelectorAll('.word-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        chip.classList.toggle('selected');
-        if (typeof container.onAnswerChange === 'function') {
+    if (!locked) {
+      container.querySelectorAll('.word-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          chip.classList.toggle('selected');
           const sel = [...container.querySelectorAll('.word-chip.selected')].map(c => c.dataset.word);
-          container.onAnswerChange({ selected: sel });
-        }
+          opts.onChange({ selected: sel });
+        });
       });
-    });
+    }
   }
 
-  function renderMcq(q, answer, container, field) {
-    const chosen = answer?.[field] ?? answer?.choice;
-    const passageBlock = q.passage
-      ? `<div class="highlight-passage" style="margin-bottom:16px">${escapeHtml(q.passage)}</div>`
-      : '';
-    const opts = (q.options || []).map((opt, i) => {
-      const sel = chosen === i ? ' selected' : '';
+  function renderFillBlanks(q, answer, container, opts) {
+    const chosen = answer?.choice;
+    const locked = opts.locked;
+    const passage = q.qtext.includes('_____')
+      ? q.qtext
+      : q.qtext;
+    const items = (q.options || []).map((opt, i) => {
+      let cls = 'mcq-option';
+      if (chosen === i) cls += ' selected';
+      if (locked) {
+        if (i === q.correct) cls += ' correct';
+        else if (chosen === i) cls += ' wrong';
+      }
       const letter = String.fromCharCode(65 + i);
-      return `<li><div class="mcq-option${sel}" data-index="${i}" role="button" tabindex="0">
-        <span class="mcq-letter">${letter}</span><span>${escapeHtml(opt)}</span></div></li>`;
+      return `<li><button type="button" class="${cls}" data-index="${i}" ${locked ? 'disabled' : ''}>
+        <span class="mcq-letter">${letter}</span><span>${escapeHtml(opt)}</span></button></li>`;
     }).join('');
-    container.innerHTML = headerHtml(q) + passageBlock + `<ul class="mcq-list">${opts}</ul>`;
-    container.querySelectorAll('.mcq-option').forEach(el => {
-      const pick = () => {
-        container.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
-        el.classList.add('selected');
-        const idx = parseInt(el.dataset.index, 10);
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange({ [field]: idx, choice: idx });
-        }
-      };
-      el.addEventListener('click', pick);
-      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
-    });
+    container.innerHTML = headerHtml(q) + `<ul class="mcq-list mcq-buttons">${items}</ul>`;
+    if (!locked) {
+      container.querySelectorAll('.mcq-option').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index, 10);
+          opts.onChange({ choice: idx });
+          if (opts.onSubmit) opts.onSubmit({ choice: idx });
+        });
+      });
+    }
   }
 
-  function renderReadComplete(q, answer, container) {
+  function renderMcq(q, answer, container, opts) {
+    const chosen = answer?.choice;
+    const locked = opts.locked;
+    const passageBlock = q.passage
+      ? `<div class="passage-block">${escapeHtml(q.passage)}</div>`
+      : '';
+    const items = (q.options || []).map((opt, i) => {
+      let cls = 'mcq-option';
+      if (chosen === i) cls += ' selected';
+      if (locked) {
+        if (i === q.correct) cls += ' correct';
+        else if (chosen === i) cls += ' wrong';
+      }
+      const letter = String.fromCharCode(65 + i);
+      return `<li><button type="button" class="${cls}" data-index="${i}" ${locked ? 'disabled' : ''}>
+        <span class="mcq-letter">${letter}</span><span>${escapeHtml(opt)}</span></button></li>`;
+    }).join('');
+    container.innerHTML = headerHtml(q) + passageBlock + `<ul class="mcq-list mcq-buttons">${items}</ul>`;
+    if (!locked) {
+      container.querySelectorAll('.mcq-option').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index, 10);
+          opts.onChange({ choice: idx });
+          if (opts.onSubmit) opts.onSubmit({ choice: idx });
+        });
+      });
+    }
+  }
+
+  function renderReadComplete(q, answer, container, opts) {
+    const letters = answer?.letters || [];
+    const locked = opts.locked;
     const parts = q.passage.split(/(_+)/g);
     let gapIdx = 0;
-    const letters = answer?.letters || [];
     let html = headerHtml(q) + '<div class="complete-passage">';
     parts.forEach(part => {
       if (/^_+$/.test(part)) {
-        const g = q.gaps[gapIdx];
+        const g = q.gaps[gapIdx] || { answer: '' };
+        const len = Math.max(1, (g.answer || '').length);
         const val = letters[gapIdx] || '';
-        html += `<input type="text" class="letter-input${val ? ' filled' : ''}" maxlength="1" data-gap="${gapIdx}" value="${escapeHtml(val)}" aria-label="Missing letter ${gapIdx + 1}">`;
+        const width = `${Math.max(1.5, len * 1.1)}em`;
+        let cls = 'letter-input';
+        if (val) cls += ' filled';
+        if (locked) {
+          const ok = val.toLowerCase() === (g.answer || '').toLowerCase();
+          cls += ok ? ' correct' : ' wrong';
+        }
+        html += `<input type="text" class="${cls}" maxlength="${len}" size="${len}" style="width:${width}" data-gap="${gapIdx}" value="${escapeHtml(val)}" ${locked ? 'readonly' : ''} aria-label="Gap ${gapIdx + 1}">`;
         gapIdx++;
       } else {
         html += escapeHtml(part);
       }
     });
     html += '</div>';
+    if (locked) {
+      html += `<div class="reveal-box" style="margin-top:12px"><strong>Full text:</strong> ${escapeHtml(revealFullPassage(q))}</div>`;
+    } else {
+      html += '<button type="button" class="btn btn-primary btn-check" id="btn-check-letters">Check letters</button>';
+    }
     container.innerHTML = html;
-    const inputs = container.querySelectorAll('.letter-input');
-    inputs.forEach((inp, i) => {
-      inp.addEventListener('input', () => {
-        inp.value = inp.value.slice(-1).toLowerCase();
-        inp.classList.toggle('filled', !!inp.value);
-        const arr = [...inputs].map(x => x.value);
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange({ letters: arr });
-        }
-        const next = inputs[i + 1];
-        if (inp.value && next) next.focus();
+    if (!locked) {
+      const inputs = container.querySelectorAll('.letter-input');
+      inputs.forEach((inp, i) => {
+        inp.addEventListener('input', () => {
+          inp.value = inp.value.slice(0, parseInt(inp.maxLength, 10)).toLowerCase();
+          inp.classList.toggle('filled', !!inp.value);
+          const arr = [...inputs].map(x => x.value);
+          opts.onChange({ letters: arr });
+        });
       });
-    });
+      const btn = container.querySelector('#btn-check-letters');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const arr = [...inputs].map(x => x.value);
+          opts.onChange({ letters: arr });
+          if (opts.onSubmit) opts.onSubmit({ letters: arr });
+        });
+      }
+    }
   }
 
-  function renderCompleteSentences(q, answer, container) {
+  function revealFullPassage(q) {
+    const parts = q.passage.split(/(_+)/g);
+    let gapIdx = 0;
+    return parts.map(part => {
+      if (/^_+$/.test(part)) {
+        return (q.gaps[gapIdx++] || {}).answer || '';
+      }
+      return part;
+    }).join('');
+  }
+
+  function renderCompleteSentences(q, answer, container, opts) {
+    const locked = opts.locked;
     let passage = escapeHtml(q.passage);
     const vals = answer?.blanks || {};
     (q.blanks || []).forEach((b, i) => {
-      const opts = b.options.map((o, j) => {
-        const sel = vals[i] === j ? ' selected' : '';
-        return `<option value="${j}"${sel}>${escapeHtml(o)}</option>`;
-      }).join('');
-      const ph = `___${i + 1}___`;
-      passage = passage.replace(ph, `<select class="blank-select" data-blank="${i}"><option value="">—</option>${opts}</select>`);
+      const optHtml = b.options.map((o, j) => `<option value="${j}">${escapeHtml(o)}</option>`).join('');
+      passage = passage.replace(`___${i + 1}___`, `<select class="blank-select" data-blank="${i}" ${locked ? 'disabled' : ''}><option value="">—</option>${optHtml}</select>`);
     });
     container.innerHTML = headerHtml(q) + `<div class="blank-passage">${passage}</div>`;
     container.querySelectorAll('select[data-blank]').forEach(sel => {
       if (vals[sel.dataset.blank] !== undefined) sel.value = String(vals[sel.dataset.blank]);
-      sel.addEventListener('change', () => {
-        const blanks = {};
-        container.querySelectorAll('select[data-blank]').forEach(s => {
-          if (s.value !== '') blanks[s.dataset.blank] = parseInt(s.value, 10);
+      if (!locked) {
+        sel.addEventListener('change', () => {
+          const blanks = {};
+          container.querySelectorAll('select[data-blank]').forEach(s => {
+            if (s.value !== '') blanks[s.dataset.blank] = parseInt(s.value, 10);
+          });
+          opts.onChange({ blanks });
+          const allFilled = (q.blanks || []).every((_, i) => blanks[i] !== undefined);
+          if (allFilled && opts.onSubmit) opts.onSubmit({ blanks });
         });
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange({ blanks });
-        }
-      });
+      }
     });
   }
 
-  function renderCompletePassage(q, answer, container) {
-    const parts = q.passage.split('___GAP___');
-    const chosen = answer?.choice;
-    let body = escapeHtml(parts[0]) + ' <em>[gap]</em> ' + escapeHtml(parts[1] || '');
-    const sents = (q.sentences || []).map((s, i) => {
-      const sel = chosen === i ? ' selected' : '';
-      return `<li><div class="mcq-option${sel}" data-index="${i}" role="button" tabindex="0">
-        <span class="mcq-letter">${i + 1}</span><span>${escapeHtml(s)}</span></div></li>`;
-    }).join('');
-    container.innerHTML = headerHtml(q) + `<p class="q-sub">${body}</p><ul class="mcq-list">${sents}</ul>`;
-    container.querySelectorAll('.mcq-option').forEach(el => {
-      el.addEventListener('click', () => {
-        container.querySelectorAll('.mcq-option').forEach(o => o.classList.remove('selected'));
-        el.classList.add('selected');
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange({ choice: parseInt(el.dataset.index, 10) });
-        }
-      });
-    });
-  }
-
-  function renderHighlight(q, answer, container) {
+  function renderHighlight(q, answer, container, opts) {
     const chosen = answer?.index;
+    const locked = opts.locked;
     const sents = (q.sentences || []).map((s, i) => {
-      const sel = chosen === i ? ' selected' : '';
-      return `<div class="highlight-sentence${sel}" data-index="${i}" role="button" tabindex="0">${escapeHtml(s)}</div>`;
+      let cls = 'highlight-sentence';
+      if (chosen === i) cls += ' selected';
+      if (locked) {
+        if (i === q.correct) cls += ' correct';
+        else if (chosen === i) cls += ' wrong';
+      }
+      return `<button type="button" class="${cls}" data-index="${i}" ${locked ? 'disabled' : ''}>${escapeHtml(s)}</button>`;
     }).join('');
-    const qline = q.question ? `<p class="q-sub"><strong>Question:</strong> ${escapeHtml(q.question)}</p>` : '';
+    const qline = q.question ? `<p class="q-sub"><strong>Q:</strong> ${escapeHtml(q.question)}</p>` : '';
     container.innerHTML = headerHtml(q) + qline + `<div class="highlight-passage">${sents}</div>`;
-    container.querySelectorAll('.highlight-sentence').forEach(el => {
-      el.addEventListener('click', () => {
-        container.querySelectorAll('.highlight-sentence').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange({ index: parseInt(el.dataset.index, 10) });
-        }
+    if (!locked) {
+      container.querySelectorAll('.highlight-sentence').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index, 10);
+          opts.onChange({ index: idx });
+          if (opts.onSubmit) opts.onSubmit({ index: idx });
+        });
       });
-    });
+    }
   }
 
-  function renderWriting(q, answer, container, id) {
+  function renderCompletePassage(q, answer, container, opts) {
+    renderMcq({ ...q, passage: q.passage.replace('___GAP___', ' ______ ') }, answer, container, opts);
+  }
+
+  function renderWriting(q, answer, container, opts) {
     const text = answer?.text || '';
     const wc = text.trim() ? text.trim().split(/\s+/).length : 0;
     const min = q.minWords || 0;
-    const met = wc >= min ? ' met' : '';
-    const img = q.imageDesc
-      ? `<div class="photo-placeholder">${escapeHtml(q.imageDesc)}</div>`
-      : '';
+    const img = q.imageDesc ? `<div class="photo-placeholder">${escapeHtml(q.imageDesc)}</div>` : '';
+    const locked = opts.locked;
     container.innerHTML = headerHtml(q) + img + `
       <div class="text-area-wrap">
-        <textarea id="${id}" placeholder="Type your response here...">${escapeHtml(text)}</textarea>
-        <div class="word-count${met}" data-min="${min}">${wc} word${wc === 1 ? '' : 's'}${min ? ` (min ${min})` : ''}</div>
-      </div>`;
+        <textarea id="writing-input" placeholder="Type your response..." ${locked ? 'readonly' : ''}>${escapeHtml(text)}</textarea>
+        <div class="word-count${wc >= min ? ' met' : ''}" data-min="${min}">${wc} words${min ? ` (min ${min})` : ''}</div>
+      </div>
+      ${!locked ? '<button type="button" class="btn btn-primary btn-check" id="btn-done-writing">Done — check writing</button>' : ''}`;
     const ta = container.querySelector('textarea');
     const wcEl = container.querySelector('.word-count');
     const update = () => {
       const t = ta.value;
       const n = t.trim() ? t.trim().split(/\s+/).length : 0;
       const m = parseInt(wcEl.dataset.min, 10) || 0;
-      wcEl.textContent = `${n} word${n === 1 ? '' : 's'}${m ? ` (min ${m})` : ''}`;
+      wcEl.textContent = `${n} words${m ? ` (min ${m})` : ''}`;
       wcEl.classList.toggle('met', n >= m);
-      if (typeof container.onAnswerChange === 'function') {
-        container.onAnswerChange({ text: t, wordCount: n });
-      }
+      opts.onChange({ text: t, wordCount: n });
     };
     ta.addEventListener('input', update);
-  }
-
-  function renderSpeaking(q, answer, container) {
-    const recorded = answer?.recorded || false;
-    const selfScore = answer?.selfScore;
-    let prompt = '';
-    if (q.sentence) prompt = `<div class="speak-prompt">${escapeHtml(q.sentence)}</div>`;
-    else if (q.imageDesc) prompt = `<div class="photo-placeholder">${escapeHtml(q.imageDesc)}</div>`;
-    else if (q.prompt) prompt = `<div class="speak-prompt">${escapeHtml(q.prompt)}</div>`;
-
-    const recClass = answer?.recording ? ' recording' : '';
-    const status = answer?.recording ? 'Recording... (mock)' : recorded ? 'Recording saved (mock)' : 'Tap to simulate recording';
-
-    container.innerHTML = headerHtml(q) + prompt + `
-      <div class="recorder-mock">
-        <button type="button" class="rec-btn${recClass}" id="mock-rec-btn">${answer?.recording ? 'Stop' : 'Record'}</button>
-        <div class="rec-status">${status}</div>
-        ${recorded ? `
-        <div class="self-assess">
-          <span>Self-assess:</span>
-          <button type="button" class="btn btn-outline-primary${selfScore === 'good' ? ' selected' : ''}" data-score="good">Good</button>
-          <button type="button" class="btn btn-outline-primary${selfScore === 'ok' ? ' selected' : ''}" data-score="ok">OK</button>
-          <button type="button" class="btn btn-outline-primary${selfScore === 'poor' ? ' selected' : ''}" data-score="poor">Needs work</button>
-        </div>` : ''}
-      </div>`;
-
-    const recBtn = container.querySelector('#mock-rec-btn');
-    if (recBtn) {
-      recBtn.addEventListener('click', () => {
-        const next = { ...answer, recording: !answer?.recording };
-        if (answer?.recording) {
-          next.recording = false;
-          next.recorded = true;
-        } else {
-          next.recording = true;
-        }
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange(next);
-        }
+    const done = container.querySelector('#btn-done-writing');
+    if (done) {
+      done.addEventListener('click', () => {
+        update();
+        if (opts.onSubmit) opts.onSubmit({ text: ta.value, wordCount: wc });
       });
     }
-    container.querySelectorAll('[data-score]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (typeof container.onAnswerChange === 'function') {
-          container.onAnswerChange({ ...answer, recorded: true, recording: false, selfScore: btn.dataset.score });
-        }
-      });
-    });
   }
 
-  function render(q, answer, container, uiState) {
-    container.onAnswerChange = null;
-    const state = uiState || {};
-    const taId = `ta-${q.id}`;
+  function render(q, answer, container, uiState, renderOpts) {
+    const ui = uiState || {};
+    const opts = {
+      locked: !!renderOpts?.locked,
+      onChange: renderOpts?.onChange || (() => {}),
+      onSubmit: renderOpts?.onSubmit || null
+    };
+    container.innerHTML = '';
 
     switch (q.type) {
       case 'read-select':
-        renderReadSelect(q, answer, container);
+        renderReadSelect(q, answer, container, opts);
         break;
       case 'fill-blanks':
+        renderFillBlanks(q, answer, container, opts);
+        break;
       case 'identify-idea':
       case 'title-passage':
-        renderMcq(q, answer, container, 'choice');
+        renderMcq(q, answer, container, opts);
         break;
       case 'read-complete':
-        renderReadComplete(q, answer, container);
+        renderReadComplete(q, answer, container, opts);
         break;
       case 'write-photo':
       case 'interactive-writing':
       case 'writing-sample':
-        renderWriting(q, answer, container, taId);
+        renderWriting(q, answer, container, opts);
         break;
       case 'complete-sentences':
-        renderCompleteSentences(q, answer, container);
+        renderCompleteSentences(q, answer, container, opts);
         break;
       case 'complete-passage':
-        renderCompletePassage(q, answer, container);
+        renderCompletePassage(q, answer, container, opts);
         break;
       case 'highlight-answer':
-        renderHighlight(q, answer, container);
-        break;
-      case 'read-aloud':
-      case 'speak-photo':
-      case 'read-then-speak':
-        renderSpeaking(q, answer, container);
+        renderHighlight(q, answer, container, opts);
         break;
       default:
-        container.innerHTML = headerHtml(q) + '<p>Unknown question type.</p>';
+        container.innerHTML = headerHtml(q) + '<p>Unknown type</p>';
     }
-    mountExtras(container, q, state);
+    mountHintReveal(container, q, ui, opts.locked);
   }
 
   function collectAnswer(q, container) {
@@ -424,13 +370,12 @@ const Renderer = (function () {
       case 'writing-sample': {
         const ta = container.querySelector('textarea');
         const text = ta ? ta.value : '';
-        const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
-        return { text, wordCount };
+        return { text, wordCount: text.trim() ? text.trim().split(/\s+/).length : 0 };
       }
       default:
         return {};
     }
   }
 
-  return { render, collectAnswer, buildRevealHtml };
+  return { render, collectAnswer, revealFullPassage };
 })();

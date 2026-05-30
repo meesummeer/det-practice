@@ -1,108 +1,124 @@
-# DET Practice Simulator
+# DET Practice — Tutoring & Test Prep
 
-A **static, browser-only** practice app for the [Duolingo English Test (DET)](https://englishtest.duolingo.com/). It simulates all **19 official question types** across four sections, with timers, hints, reveal answers, section breaks, and an estimated score on the 10–160 scale.
+A **static** Duolingo English Test (DET) practice hub: mock exam with Roman Urdu tutor, grammar mini-games, and a 120-word vocabulary bank. No frameworks, no build step — deploy on GitHub Pages or open `index.html` locally.
 
-No backend, no build step, no npm — open `index.html` or deploy to GitHub Pages.
+**Roman Urdu mein:** Ye app DET ki tayyari ke liye hai — mock test, Urdu mein tutor tips, grammar games, aur words ki practice. Sab free, browser mein chal jata hai.
+
+---
+
+## Pages
+
+| Page | File | What it does |
+|------|------|----------------|
+| **Home** | `index.html` | Hub, streak, XP, links to all sections |
+| **Practice Test** | `practice-test.html` | ~27-question mock DET (11 types), timers, tutor after each answer |
+| **Mini-Games** | `minigames.html` | Has/Have, Is/Are/Was/Were, Word Drop, Odd One Out |
+| **Word Bank** | `wordbank.html` | 120 words, categories, search, quiz, mark learned |
+| **Tutor Library** | `tutor.html` | Browse all question explanations (EN + Roman Urdu) |
+
+Speaking tasks (Read Aloud, Speak About Photo, Read Then Speak) are **not** included — no AI speaking judge in this version.
+
+---
 
 ## Run locally
 
-1. Clone or download this folder.
-2. Open **`index.html`** in any modern browser (Chrome, Firefox, Safari, Edge).
-
 ```bash
-# Optional: serve locally to avoid file:// quirks (not required)
+open index.html
+# or
 python3 -m http.server 8080
-# Then visit http://localhost:8080
+# visit http://localhost:8080
 ```
+
+---
 
 ## Deploy to GitHub Pages
 
-1. Create a GitHub repository and push this project (root layout: `index.html` at repo root).
-2. On GitHub: **Settings → Pages**.
-3. **Source**: Deploy from branch **`main`** (or `master`), folder **`/ (root)`**.
-4. Save. Your site will be at `https://<username>.github.io/<repo>/`.
+1. Push this folder to a GitHub repo (`index.html` at repo root).
+2. **Settings → Pages → Branch:** `main` → **Folder:** `/ (root)`.
+3. Site URL: `https://<username>.github.io/<repo>/`
 
-If you prefer a `/docs` deploy, move all files into `docs/` and set Pages source to the **`/docs`** folder.
+---
 
-## Project structure
+## Add questions (`js/questions.js`)
 
-```
-det-practice/
-├── index.html          # Shell UI (welcome, test, breaks, results)
-├── css/styles.css      # Light-mode DET-style layout
-├── js/
-│   ├── app.js          # Engine: navigation, timers, section breaks
-│   ├── questions.js    # Question bank + session builder
-│   ├── renderer.js     # Per-type UI renderers
-│   └── results.js      # Scoring + results screen
-└── README.md
-```
+Copy an existing `q({ ... })` block. Required fields:
 
-## Question bank — adding questions
+- `id`, `type`, `qtext`, `qsub`, `hint`, `tip`
+- `explanationEN`, `explanationUR` (2–3 sentences each; Roman Urdu = conversational Pakistani style)
+- Type-specific: `options` + `correct` (index) for MCQ; `words` + `correct` for read-select; `gaps` for read-complete; etc.
 
-All questions live in **`js/questions.js`** in the `QUESTION_BANK` array.
-
-Each question should include:
-
-| Field | Description |
-|--------|-------------|
-| `id` | Unique string, e.g. `'fb12'` |
-| `type` | One of the keys in `QUESTION_TYPES` |
-| `tag`, `icon`, `qtext`, `qsub` | UI labels and prompts |
-| `hint` | Strategy tip (purple Hint box) |
-| `tip` | DET exam tip (shown on reveal) |
-| `section_score` | Auto-set from `TYPE_META` unless overridden: `literacy`, `comprehension`, `conversation`, `production` |
-| Type-specific fields | e.g. `options` + `correct` for MCQ, `words` + `correct` for read-select, `sample` for writing/speaking |
-
-**Example — Fill in the Blanks:**
+Session length: edit `SESSION_TARGETS` (currently ~27 questions, no speaking).
 
 ```javascript
 q({
   id: 'fb99',
   type: 'fill-blanks',
-  qtext: 'The results were _____ by independent auditors.',
+  qtext: 'The data was _____ by experts.',
   qsub: 'Choose the best word.',
-  hint: 'Verified or checked formally.',
-  tip: 'Read the whole sentence before choosing.',
-  options: ['ignored', 'validated', 'hidden', 'deleted'],
-  correct: 1  // index into options
+  hint: 'Checked carefully.',
+  tip: 'Read the whole sentence first.',
+  options: ['ignored', 'verified', 'deleted', 'hidden'],
+  correct: 1,
+  explanationEN: '...',
+  explanationUR: '...'
 })
 ```
 
-**Session size:** `SESSION_TARGETS` in `questions.js` controls how many items per type are picked (~30 per run). Edit counts there to change session length.
+---
 
-## DET score interpretation (practice estimate)
+## Add word bank entries (`js/wordbank-data.js`)
 
-This app **does not** produce an official Duolingo score. It maps practice performance to an **approximate** 10–160 scale for feedback only.
+```javascript
+{
+  word: 'example',
+  phonetic: 'eg-ZAM-pul',
+  pos: 'noun',
+  meaningEN: 'One simple sentence definition.',
+  meaningUR: 'Roman Urdu matlab, short and clear.',
+  synonyms: ['sample', 'instance'],
+  example: 'DET-level sentence here.',
+  memoryTip: 'Mnemonic or root.',
+  category: 'Academic & Formal'  // must match one of 8 category names
+}
+```
 
-| Estimated score | Typical interpretation (CEFR-oriented) |
-|-----------------|------------------------------------------|
-| 10–55 | Basic — developing foundational skills |
-| 60–85 | Intermediate — B1 range |
-| 90–115 | Upper intermediate — B2 range |
-| 120–135 | Advanced — C1 range |
-| 140–160 | Highly proficient — C2 range |
+---
 
-**Subscores (percent bars):**
+## localStorage keys
 
-| Subscore | Question types |
-|----------|----------------|
-| **Literacy** | Read & Select, Fill in the Blanks, Read & Complete |
-| **Production** | Write About Photo, Interactive Writing, Writing Sample |
-| **Comprehension** | Complete Sentences/Passage, Highlight Answer, Identify Idea, Title Passage |
-| **Conversation** | Read Aloud, Speak About Photo, Read Then Speak (self-assessed) |
+| Key | Purpose |
+|-----|---------|
+| `det_xp` | Cosmetic XP |
+| `det_streak` | Daily practice streak |
+| `det_learned_words` | Word bank “learned” marks |
+| `det_highscores` | Mini-game high scores |
 
-Writing/speaking in practice mode score **attempt + word count** (writing) or **self-assessment** (speaking), not AI grading.
+---
 
-## Features
+## DET score table (practice estimate)
 
-- Back restores previous question and answer UI state
-- Hint / Reveal Answer per question
-- Section break screens (once per forward section transition)
-- Per-question timers (pause when leaving, resume on return)
-- Mock speaking recorder with Good / OK / Needs work
-- Retake generates a new random subset from the bank
+| Score | Rough level |
+|-------|-------------|
+| 10–55 | Basic |
+| 60–85 | Intermediate (B1) |
+| 90–115 | Upper intermediate (B2) |
+| 120–135 | Advanced (C1) |
+| 140–160 | Highly proficient (C2) |
 
-## License
+**Subscores in practice test:** Literacy (adaptive), Production (writing), Comprehension (interactive reading).
 
-Use and modify freely for personal study and teaching.
+---
+
+## Writing AI (future)
+
+`judgeWriting()` in `js/shared.js` is a placeholder. Replace with an API call when ready (`// TODO: Replace with Anthropic API call`).
+
+---
+
+## Tech
+
+- Vanilla HTML/CSS/JS
+- Fonts: Google Fonts (Nunito)
+- Optional: canvas-confetti (CDN) on section complete / test finish
+
+License: use freely for study and teaching.

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DET Practice Test</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
+</head>
+<body>
+  <div id="screen-test" class="screen active">
+    <header class="topbar">
+      <a href="index.html" class="logo">DET<span>Prep</span></a>
+      <span class="topbar-title" id="topbar-section">Adaptive</span>
+      <div class="xp-wrap"><div class="xp-fill" id="xp-fill"></div></div>
+      <div class="timer-display" id="topbar-timer"></div>
+    </header>
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar" role="progressbar"></div></div>
+    <main class="page-main">
+      <div id="question-area"></div>
+      <div id="tutor-area"></div>
+    </main>
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn" id="btn-back">Back</button>
+      <button type="button" class="nav-btn" id="btn-skip">Skip</button>
+      <div class="nav-dots" id="nav-dots"></div>
+      <button type="button" class="nav-btn nav-btn-hint" id="btn-hint">Hint</button>
+      <button type="button" class="nav-btn nav-btn-reveal" id="btn-reveal">Reveal</button>
+      <button type="button" class="nav-btn nav-btn-next" id="btn-next">Next</button>
+    </nav>
+  </div>
+
+  <div id="screen-break" class="screen">
+    <header class="topbar"><a href="index.html" class="logo">DET<span>Prep</span></a></header>
+    <main class="break-main" id="break-content"></main>
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn nav-btn-next" id="btn-break-continue">Continue</button>
+    </nav>
+  </div>
+
+  <div id="screen-results" class="screen">
+    <header class="topbar"><a href="index.html" class="logo">DET<span>Prep</span></a></header>
+    <main class="results-main page-main" id="results-content"></main>
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn nav-btn-next" id="btn-retake">Retake</button>
+      <button type="button" class="nav-btn" id="btn-home">Home</button>
+    </nav>
+  </div>
+
+  <script src="js/shared.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/tutor.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

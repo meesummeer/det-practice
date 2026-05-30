@@ -45,21 +45,11 @@ const SECTIONS = [
   {
     id: 'reading',
     name: 'Interactive Reading',
-    breakTitle: 'Speaking Section Next',
+    breakTitle: 'Almost Done!',
     breakTips: [
-      'Speaking tasks are self-assessed in this simulator.',
-      'Speak clearly at a natural pace — fluency matters on the real test.',
-      'Use the mock recorder to simulate recording, then rate yourself honestly.'
-    ]
-  },
-  {
-    id: 'speaking',
-    name: 'Speaking',
-    breakTitle: 'Test Complete',
-    breakTips: [
-      'Review your estimated score and per-question feedback.',
-      'Retake to get a new random question set.',
-      'Add your own questions in questions.js to expand the bank.'
+      'Last section — stay focused!',
+      'Highlight Answer needs the exact supporting sentence.',
+      'Main idea and title questions need the whole passage in mind.'
     ]
   }
 ];
@@ -76,28 +66,114 @@ const TYPE_META = {
   'highlight-answer': { tag: 'Highlight the Answer', icon: '🔍', section: 'reading', score: 'comprehension' },
   'identify-idea': { tag: 'Identify the Idea', icon: '💡', section: 'reading', score: 'comprehension' },
   'title-passage': { tag: 'Title the Passage', icon: '🏷️', section: 'reading', score: 'comprehension' },
-  'read-aloud': { tag: 'Read Aloud', icon: '🎤', section: 'speaking', score: 'conversation' },
-  'speak-photo': { tag: 'Speak About the Photo', icon: '🗣️', section: 'speaking', score: 'conversation' },
-  'read-then-speak': { tag: 'Read, Then Speak', icon: '📢', section: 'speaking', score: 'conversation' }
 };
 
 const TIMERS = {
   'write-photo': 60,
   'interactive-writing': 300,
   'writing-sample': 600,
-  'read-aloud': 20,
-  'speak-photo': 90,
-  'read-then-speak': 90
 };
+
+const SPEAKING_TYPES = ['read-aloud', 'speak-photo', 'read-then-speak'];
+
+function enrichExplanations(item) {
+  if (item.explanationEN && item.explanationUR) return item;
+  const ans = getCorrectAnswerText(item);
+  const en = item.explanationEN || buildExplanationEN(item, ans);
+  const ur = item.explanationUR || buildExplanationUR(item, ans);
+  return {
+    ...item,
+    explanationEN: en,
+    explanationUR: ur,
+    memoryTip: item.memoryTip || item.hint || 'Context is key — read the full sentence or passage.'
+  };
+}
+
+function getCorrectAnswerText(q) {
+  switch (q.type) {
+    case 'read-select': return (q.correct || []).join(', ');
+    case 'fill-blanks':
+    case 'identify-idea':
+    case 'title-passage':
+      return q.options && q.correct !== undefined ? q.options[q.correct] : '';
+    case 'read-complete':
+      return (q.gaps || []).map(g => g.answer).join('');
+    case 'complete-sentences':
+      return (q.blanks || []).map((b, i) => b.options[b.correct]).join('; ');
+    case 'complete-passage':
+    case 'highlight-answer':
+      return q.sentences && q.correct !== undefined ? q.sentences[q.correct] : '';
+    default:
+      return q.sample || '';
+  }
+}
+
+function buildExplanationEN(q, ans) {
+  if (q.id === 'fb03') {
+    return "The word 'alleviate' means to reduce or ease something negative. The sentence describes a treaty trying to reduce tensions — 'alleviate' is the only option that means 'to ease or lessen'. 'Exacerbate' means the opposite (make worse).";
+  }
+  switch (q.type) {
+    case 'fill-blanks':
+      return `The correct answer is "${ans}". Read the full sentence — only this option fits grammar and meaning. Other options change the logic or sound unnatural here.`;
+    case 'read-select':
+      return `Real words: ${ans}. Fake words look English but are invented; they often cannot be used naturally in a real sentence.`;
+    case 'read-complete':
+      return `Missing letters: ${ans}. Use surrounding letters to guess each word, then type only the hidden letters.`;
+    case 'highlight-answer':
+      return `Correct: "${ans}". This sentence answers: "${q.question}". Other lines are related but not a direct answer.`;
+    case 'identify-idea':
+    case 'title-passage':
+      return `"${ans}" summarizes the whole passage. Wrong options are too narrow, too broad, or off-topic.`;
+    case 'complete-passage':
+      return `"${ans}" fits the gap and keeps the passage logical. Eliminate sentences that change topic.`;
+    case 'complete-sentences':
+      return `Correct forms: ${ans}. Match subject, tense, and collocations in each blank.`;
+    case 'write-photo':
+    case 'interactive-writing':
+    case 'writing-sample':
+      return 'A strong answer is on-topic, uses clear sentences, and meets the word count. Compare with the sample response.';
+    default:
+      return `Correct answer: ${ans}. Notice how the question guides you to specific context words.`;
+  }
+}
+
+function buildExplanationUR(q, ans) {
+  if (q.id === 'fb03') {
+    return "Yahan 'alleviate' sahi hai kyunki iska matlab hai 'kam karna'. Treaty tensions kam karti hai — 'alleviate' fit hai. 'Exacerbate' ulta hai yaani 'barhana'.";
+  }
+  switch (q.type) {
+    case 'fill-blanks':
+      return `Sahi jawab "${ans}" hai. Poora sentence parho — sirf yeh option grammar aur meaning se match karta hai.`;
+    case 'read-select':
+      return `Asli words: ${ans}. Fake words ajeeb lagte hain jab sentence mein use karo — instinct par trust karo.`;
+    case 'read-complete':
+      return `Missing letters: ${ans}. Sirf gap wale letters likho, poora word nahi.`;
+    case 'highlight-answer':
+      return `Sahi line: "${ans}". Ye "${q.question}" ka direct jawab hai.`;
+    case 'identify-idea':
+    case 'title-passage':
+      return `"${ans}" poora passage cover karta hai. Galat options chhoti detail ya off-topic hain.`;
+    case 'complete-passage':
+      return `"${ans}" gap ke liye best hai — flow sahi rehta hai.`;
+    case 'complete-sentences':
+      return `Sahi forms: ${ans}. Subject aur verb match karo.`;
+    case 'write-photo':
+    case 'interactive-writing':
+    case 'writing-sample':
+      return 'Topic par raho, clear sentences likho, word count poora karo. Sample se ideas lo.';
+    default:
+      return `Sahi: ${ans}. Question ke keywords dhyan se parho.`;
+  }
+}
 
 function q(base) {
   const meta = TYPE_META[base.type] || {};
-  return {
+  return enrichExplanations({
     section_score: meta.score || 'literacy',
     tag: base.tag || meta.tag,
     icon: base.icon || meta.icon,
     ...base
-  };
+  });
 }
 
 const QUESTION_BANK = [
@@ -161,7 +237,9 @@ const QUESTION_BANK = [
   // —— Fill in the Blanks (10+) ——
   q({ id: 'fb01', type: 'fill-blanks', qtext: 'The research findings were _____ by peer review before publication.', qsub: 'Choose the best word.', hint: 'You need a verb meaning checked or confirmed.', tip: 'Context before and after the blank defines word class.', options: ['vindicated', 'scrutinized', 'fabricated', 'dismissed'], correct: 1 }),
   q({ id: 'fb02', type: 'fill-blanks', qtext: 'Urban planners must _____ green space in new developments.', qsub: 'Academic vocabulary.', hint: 'Think integrate or include formally.', tip: 'Four options are close in register — pick the collocate.', options: ['incorporate', 'abandon', 'neglect', 'obscure'], correct: 0 }),
-  q({ id: 'fb03', type: 'fill-blanks', qtext: 'The treaty aims to _____ tensions between the two nations.', qsub: 'Select the best fit.', hint: 'Reduce or ease conflicts.', tip: 'Read the full sentence once before scanning options.', options: ['exacerbate', 'alleviate', 'provoke', 'ignore'], correct: 1 }),
+  q({ id: 'fb03', type: 'fill-blanks', qtext: 'The treaty aims to _____ tensions between the two nations.', qsub: 'Select the best fit.', hint: 'Reduce or ease conflicts.', tip: 'Read the full sentence once before scanning options.', options: ['exacerbate', 'alleviate', 'provoke', 'ignore'], correct: 1,
+    explanationEN: "The word 'alleviate' means to reduce or ease something negative. The sentence describes a treaty trying to reduce tensions — 'alleviate' is the only option that means 'to ease or lessen'. 'Exacerbate' means the opposite (make worse).",
+    explanationUR: "Yahan 'alleviate' sahi hai kyunki iska matlab hai 'kam karna ya halka karna'. Sentence mein treaty ka kaam tensions kam karna tha — toh sirf 'alleviate' fit baith'ta hai. 'Exacerbate' ulta matlab rakhta hai yaani 'barhana'." }),
   q({ id: 'fb04', type: 'fill-blanks', qtext: 'Her argument was so _____ that even critics conceded key points.', qsub: 'Positive adjective needed.', hint: 'Compelling and logical.', tip: 'Eliminate options with opposite meaning first.', options: ['cogent', 'spurious', 'trivial', 'ambiguous'], correct: 0 }),
   q({ id: 'fb05', type: 'fill-blanks', qtext: 'Scientists remain _____ about the long-term effects of the compound.', qsub: 'Academic tone.', hint: 'Not fully certain.', tip: 'Adjective–noun agreement can eliminate wrong choices.', options: ['certain', 'skeptical', 'ecstatic', 'indifferent'], correct: 1 }),
   q({ id: 'fb06', type: 'fill-blanks', qtext: 'The museum exhibit seeks to _____ colonial history through primary sources.', qsub: 'Verb of representation.', hint: 'Present or depict accurately.', tip: 'DET blanks often test academic verbs.', options: ['obscure', 'chronicle', 'erase', 'simplify'], correct: 1 }),
@@ -332,9 +410,10 @@ const QUESTION_BANK = [
 const SESSION_TARGETS = {
   adaptive: { 'read-select': 4, 'fill-blanks': 4, 'read-complete': 2 },
   writing: { 'write-photo': 2, 'interactive-writing': 2, 'writing-sample': 1 },
-  reading: { 'complete-sentences': 2, 'complete-passage': 2, 'highlight-answer': 2, 'identify-idea': 2, 'title-passage': 1 },
-  speaking: { 'read-aloud': 2, 'speak-photo': 1, 'read-then-speak': 2 }
+  reading: { 'complete-sentences': 2, 'complete-passage': 2, 'highlight-answer': 2, 'identify-idea': 2, 'title-passage': 1 }
 };
+
+const ACTIVE_QUESTION_BANK = QUESTION_BANK.filter(q => !SPEAKING_TYPES.includes(q.type));
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -351,7 +430,7 @@ function buildSessionQuestions() {
 
   Object.entries(SESSION_TARGETS).forEach(([sectionId, typeCounts]) => {
     Object.entries(typeCounts).forEach(([type, count]) => {
-      const pool = shuffle(QUESTION_BANK.filter(q => q.type === type && !usedIds.has(q.id)));
+      const pool = shuffle(ACTIVE_QUESTION_BANK.filter(qu => qu.type === type && !usedIds.has(qu.id)));
       pool.slice(0, count).forEach(q => {
         usedIds.add(q.id);
         picked.push({ ...q, sectionId });

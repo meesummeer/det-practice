@@ -3,80 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DET Practice Simulator</title>
+  <title>DET Practice — Home</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div id="app">
-    <!-- Welcome -->
-    <div id="screen-welcome" class="screen active">
-      <header class="welcome-header">
-        <div class="logo">DET<span>Practice</span></div>
-        <h1>Duolingo English Test Practice Simulator</h1>
-        <p class="welcome-sub">Practice all 19 DET question types in a realistic session flow. ~30 randomized questions per run.</p>
-      </header>
-      <main class="welcome-main">
-        <div class="welcome-card">
-          <h2>What to expect</h2>
-          <ul>
-            <li><strong>4 sections</strong> — Adaptive, Writing, Interactive Reading, Speaking</li>
-            <li><strong>Timers</strong> on timed writing and speaking tasks</li>
-            <li><strong>Hints &amp; reveal</strong> for learning (not available on the real test)</li>
-            <li><strong>Estimated score</strong> on a 10–160 scale with four subscores</li>
-          </ul>
-        </div>
-        <button id="btn-start" class="btn btn-primary btn-large">Start Practice Test</button>
-      </main>
+  <header class="topbar">
+    <a href="index.html" class="logo">DET<span>Prep</span></a>
+    <span class="topbar-title">Duolingo English Test</span>
+    <div class="xp-wrap" title="Total XP"><div class="xp-fill" id="hub-xp-fill" style="width:30%"></div></div>
+  </header>
+
+  <main class="hub-main">
+    <div class="hub-hero">
+      <h1>DET Practice Hub</h1>
+      <p>Mock tests, grammar games, vocabulary, and Roman Urdu tutor tips — all free, all offline-ready.</p>
+      <div class="streak-badge">🔥 <span id="streak-count">0</span> day streak</div>
+      <p class="muted" style="margin-top:8px">XP: <strong id="hub-xp">0</strong></p>
     </div>
 
-    <!-- Test -->
-    <div id="screen-test" class="screen">
-      <header class="topbar">
-        <div class="logo-sm">DET<span>Practice</span></div>
-        <div class="section-label" id="topbar-section">Section</div>
-        <div class="timer-display" id="topbar-timer" aria-live="polite"></div>
-      </header>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+    <div class="hub-grid">
+      <a class="hub-card" href="practice-test.html">
+        <div class="icon">📝</div>
+        <h2>Practice Test</h2>
+        <p>Full mock DET — 11 question types, timers, tutor after each answer.</p>
+      </a>
+      <a class="hub-card" href="minigames.html">
+        <div class="icon">🎮</div>
+        <h2>Mini-Games</h2>
+        <p>Has/Have, Is/Are/Was/Were, Word Drop, Odd One Out — 3 lives each.</p>
+      </a>
+      <a class="hub-card" href="wordbank.html">
+        <div class="icon">📖</div>
+        <h2>Word Bank</h2>
+        <p>120+ academic words with Roman Urdu, synonyms, and memory tips.</p>
+      </a>
+      <a class="hub-card" href="tutor.html">
+        <div class="icon">🎓</div>
+        <h2>Tutor Library</h2>
+        <p>Browse explanations for every question in the bank.</p>
+      </a>
+    </div>
+
+    <details class="about-panel">
+      <summary>ℹ️ About the real DET format</summary>
+      <div class="about-body">
+        <p>The Duolingo English Test is adaptive and takes about 1 hour. Scores range from <strong>10 to 160</strong>.</p>
+        <ul>
+          <li><strong>Adaptive:</strong> Read & Select, Fill in the Blanks, Read & Complete</li>
+          <li><strong>Writing:</strong> Write About Photo, Interactive Writing, Writing Sample</li>
+          <li><strong>Interactive Reading:</strong> Complete sentences/passage, Highlight, Main Idea, Title</li>
+          <li><strong>Speaking:</strong> Read Aloud, Speak About Photo, Read Then Speak (not in this practice app)</li>
+        </ul>
+        <p>This simulator focuses on reading & writing types you can practice without AI speaking judges.</p>
       </div>
-      <main class="question-area" id="question-area"></main>
-      <nav class="bottom-nav" id="bottom-nav">
-        <button type="button" class="nav-btn" id="btn-back" disabled>Back</button>
-        <button type="button" class="nav-btn" id="btn-skip">Skip</button>
-        <div class="nav-dots" id="nav-dots" aria-label="Question progress"></div>
-        <button type="button" class="nav-btn nav-btn-hint" id="btn-hint">Hint</button>
-        <button type="button" class="nav-btn nav-btn-reveal" id="btn-reveal">Reveal Answer</button>
-        <button type="button" class="nav-btn nav-btn-next" id="btn-next">Next</button>
-      </nav>
-    </div>
+    </details>
+  </main>
 
-    <!-- Section break -->
-    <div id="screen-break" class="screen">
-      <header class="topbar topbar-minimal">
-        <div class="logo-sm">DET<span>Practice</span></div>
-      </header>
-      <main class="break-main" id="break-content"></main>
-      <nav class="bottom-nav bottom-nav-single">
-        <button type="button" class="nav-btn nav-btn-next" id="btn-break-continue">Continue</button>
-      </nav>
-    </div>
-
-    <!-- Results -->
-    <div id="screen-results" class="screen">
-      <header class="topbar topbar-minimal">
-        <div class="logo-sm">DET<span>Practice</span></div>
-      </header>
-      <main class="results-main" id="results-content"></main>
-      <nav class="bottom-nav bottom-nav-single">
-        <button type="button" class="nav-btn nav-btn-next" id="btn-retake">Retake Test</button>
-        <button type="button" class="nav-btn" id="btn-home">Back to Home</button>
-      </nav>
-    </div>
-  </div>
-
-  <script src="js/questions.js"></script>
-  <script src="js/renderer.js"></script>
-  <script src="js/results.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/shared.js"></script>
+  <script>
+    const xp = DETStorage.getXP();
+    const streak = DETStorage.getStreak();
+    document.getElementById('hub-xp').textContent = xp;
+    document.getElementById('streak-count').textContent = streak;
+    document.getElementById('hub-xp-fill').style.width = Math.min(100, (xp % 500) / 5) + '%';
+    DETStorage.touchStreak();
+  </script>
 </body>
 </html>

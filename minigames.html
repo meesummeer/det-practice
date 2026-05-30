@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-Games — DET Prep</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="index.html" class="logo">DET<span>Prep</span></a>
+    <span class="topbar-title">Grammar Mini-Games</span>
+    <span class="muted" style="font-size:13px;font-weight:700">XP: <span id="game-xp">0</span></span>
+  </header>
+  <main class="page-main">
+    <div class="game-picker" id="game-picker"></div>
+    <div id="game-screen" hidden>
+      <div class="game-hud">
+        <span class="hearts" id="hearts">❤️❤️❤️</span>
+        <span>Score: <strong id="game-score">0</strong> / <span id="game-total">20</span></span>
+        <span>Best: <strong id="game-best">0</strong></span>
+      </div>
+      <div id="game-content"></div>
+      <div class="game-feedback" id="game-feedback" hidden></div>
+    </div>
+    <div id="game-end" hidden style="text-align:center;padding:24px">
+      <h2 id="end-title">Game Over</h2>
+      <p id="end-msg"></p>
+      <button class="btn btn-primary" id="btn-play-again">Play Again</button>
+    </div>
+  </main>
+  <script src="js/shared.js"></script>
+  <script src="js/minigames.js"></script>
+</body>
+</html>
