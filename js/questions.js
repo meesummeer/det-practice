@@ -77,10 +77,11 @@ const TIMERS = {
 const SPEAKING_TYPES = ['read-aloud', 'speak-photo', 'read-then-speak'];
 
 function enrichExplanations(item) {
-  if (item.explanationEN && item.explanationUR) return item;
   const ans = getCorrectAnswerText(item);
   const en = item.explanationEN || buildExplanationEN(item, ans);
-  const ur = item.explanationUR || buildExplanationUR(item, ans);
+  const ur = item.explanationUR
+    || (typeof EXPLANATION_UR_BY_ID !== 'undefined' && EXPLANATION_UR_BY_ID[item.id])
+    || buildExplanationUR(item, ans);
   return {
     ...item,
     explanationEN: en,
@@ -140,34 +141,14 @@ function buildExplanationEN(q, ans) {
 }
 
 function buildExplanationUR(q, ans) {
-  if (q.id === 'fb03') {
-    return "Yahan 'alleviate' sahi hai kyunki iska matlab hai 'kam karna'. Treaty tensions kam karti hai — 'alleviate' fit hai. 'Exacerbate' ulta hai yaani 'barhana'.";
+  if (q.type === 'fill-blanks' && q.options && q.correct !== undefined) {
+    const w = q.options[q.correct];
+    return `'${w}' yahan sahi hai kyunki sentence ka matlab aur grammar dono isi word se complete hote hain.`;
   }
-  switch (q.type) {
-    case 'fill-blanks':
-      return `Sahi jawab "${ans}" hai. Poora sentence parho — sirf yeh option grammar aur meaning se match karta hai.`;
-    case 'read-select':
-      return `Asli words: ${ans}. Fake words ajeeb lagte hain jab sentence mein use karo — instinct par trust karo.`;
-    case 'read-complete':
-      return q.fullPassage
-        ? `Poora sentence: "${q.fullPassage}". Sirf blank wale letters likho — poora word nahi.`
-        : `Missing letters: ${ans}. Sirf gap wale letters likho, poora word nahi.`;
-    case 'highlight-answer':
-      return `Sahi line: "${ans}". Ye "${q.question}" ka direct jawab hai.`;
-    case 'identify-idea':
-    case 'title-passage':
-      return `"${ans}" poora passage cover karta hai. Galat options chhoti detail ya off-topic hain.`;
-    case 'complete-passage':
-      return `"${ans}" gap ke liye best hai — flow sahi rehta hai.`;
-    case 'complete-sentences':
-      return `Sahi forms: ${ans}. Subject aur verb match karo.`;
-    case 'write-photo':
-    case 'interactive-writing':
-    case 'writing-sample':
-      return 'Topic par raho, clear sentences likho, word count poora karo. Sample se ideas lo.';
-    default:
-      return `Sahi: ${ans}. Question ke keywords dhyan se parho.`;
+  if (q.type === 'read-select') {
+    return `Ye asli English words hain: ${ans}. Jo word zabaan mein ajeeb lage, woh aksar fake hota hai.`;
   }
+  return `Sahi jawab "${ans}" — is word ya phrase ka matlab poora sentence parh kar samjho.`;
 }
 
 function q(base) {
@@ -254,11 +235,11 @@ const QUESTION_BANK = [
   q({ id: 'fb11', type: 'fill-blanks', qtext: 'Data privacy laws _____ how companies collect user information.', qsub: 'Regulate or control.', hint: 'Govern or dictate rules.', tip: 'Subject–verb agreement: laws + plural verb.', options: ['mandate', 'prevent', 'encourage', 'abolish'], correct: 0 }),
 
   // —— Read & Complete (4+) ——
-  q({ id: 'rc01', type: 'read-complete', qtext: 'Complete the text with the missing letters.', qsub: 'Type each missing letter.', hint: 'Use surrounding letters as strong clues.', tip: 'Tab moves to next blank on the real test — practice flow.', passage: 'Climate change poses an urgent ch____lenge to coastal cities worldwide.', gaps: [{ index: 0, answer: 'alle' }], fullPassage: 'Climate change poses an urgent challenge to coastal cities worldwide.' }),
-  q({ id: 'rc02', type: 'read-complete', qtext: 'Fill in the missing letters.', qsub: 'Short academic snippet.', hint: 'The word means proof or support.', tip: 'Only missing letters are typed — not full words.', passage: 'The study provides comp___ling ev__ence for the hypothesis.', gaps: [{ index: 0, answer: 'ell' }, { index: 1, answer: 'id' }], fullPassage: 'The study provides compelling evidence for the hypothesis.' }),
-  q({ id: 'rc03', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'Read the whole sentence first.', hint: 'Technology + society keyword.', tip: 'Common letters: e, i, a appear often in gaps.', passage: 'Digital lit__acy is essential in modern ed_cation systems.', gaps: [{ index: 0, answer: 'er' }, { index: 1, answer: 'u' }], fullPassage: 'Digital literacy is essential in modern education systems.' }),
-  q({ id: 'rc04', type: 'read-complete', qtext: 'Type the missing letters.', qsub: 'Academic register.', hint: 'Word means widespread.', tip: 'Do not type capital letters unless shown.', passage: 'Smartphones have become ub__uitous in urban house__olds.', gaps: [{ index: 0, answer: 'iq' }, { index: 1, answer: 'eh' }], fullPassage: 'Smartphones have become ubiquitous in urban households.' }),
-  q({ id: 'rc05', type: 'read-complete', qtext: 'Complete the text.', qsub: 'Multiple gaps in one sentence.', hint: 'Renewable energy context.', tip: 'Wrong letters cannot be submitted — keep trying.', passage: 'Solar power offers a sust___inable alt__native to fossil fuels.', gaps: [{ index: 0, answer: 'ain' }, { index: 1, answer: 'er' }], fullPassage: 'Solar power offers a sustainable alternative to fossil fuels.' }),
+  q({ id: 'rc01', type: 'read-complete', qtext: 'Complete the text with the missing letters.', qsub: 'Type one letter per blank.', hint: 'Use surrounding letters as strong clues.', tip: 'Each blank is exactly one letter on the DET.', passage: 'Climate change poses an urgent ch_llenge to coastal cities.', gaps: [{ index: 0, answer: 'a' }], fullPassage: 'Climate change poses an urgent challenge to coastal cities.', explanationUR: "'Challenge' matlab hai mushkil situation ya kaam. Climate change duniya ke liye bada challenge hai — yaad rakho ch-a-llenge." }),
+  q({ id: 'rc02', type: 'read-complete', qtext: 'Fill in the missing letters.', qsub: 'One letter per blank.', hint: 'The words mean strong proof.', tip: 'Read the full sentence before typing letters.', passage: 'The study provides comp_lling evid_nce for the hypothesis.', gaps: [{ index: 0, answer: 'e' }, { index: 1, answer: 'e' }], fullPassage: 'The study provides compelling evidence for the hypothesis.', explanationUR: "Yaad rakho: 'compelling' matlab itna strong ke manna pade. 'Evidence' yani proof — dono academic writing mein common hain." }),
+  q({ id: 'rc03', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'One letter per blank.', hint: 'Technology + education words.', tip: 'Look at letters before and after each blank.', passage: 'Digital liter_cy is essential in modern educ_tion systems.', gaps: [{ index: 0, answer: 'a' }, { index: 1, answer: 'a' }], fullPassage: 'Digital literacy is essential in modern education systems.', explanationUR: "'Literacy' yani padhne likhne ki salahiyat. 'Digital literacy' matlab technology samajhne ki ability — 'education' yani taleem." }),
+  q({ id: 'rc04', type: 'read-complete', qtext: 'Type the missing letters.', qsub: 'One letter per blank.', hint: 'Words mean everywhere and homes.', tip: 'Type lowercase only.', passage: 'Smartphones have become ubiquit_us in urban hous_holds.', gaps: [{ index: 0, answer: 'o' }, { index: 1, answer: 'e' }], fullPassage: 'Smartphones have become ubiquitous in urban households.', explanationUR: "Mushkil word: 'ubiquitous' matlab har jagah mojood — jaise phones aajkal. 'Households' yani ghar ghar, urban areas mein." }),
+  q({ id: 'rc05', type: 'read-complete', qtext: 'Complete the text.', qsub: 'One letter per blank.', hint: 'Renewable energy vocabulary.', tip: 'Each _ is one letter only.', passage: 'Solar power offers a sust_inable alt_rnative to fossil fuels.', gaps: [{ index: 0, answer: 'a' }, { index: 1, answer: 'e' }], fullPassage: 'Solar power offers a sustainable alternative to fossil fuels.', explanationUR: "'Sustainable' matlab jo chalte rehne ki taaqat rakhe — solar energy sustainable hai. 'Alternative' matlab doosra option — petrol ki jagah solar." }),
 
   // —— Write About Photo (4+) ——
   q({ id: 'wp01', type: 'write-photo', qtext: 'Describe the image in at least one sentence.', qsub: 'You have 60 seconds. Write in English.', hint: 'Cover who, what, where, and what is happening.', tip: 'On DET, write 1–3 clear sentences — not an essay.', imageDesc: '[Photo: A busy farmers market with colorful fruit stalls and shoppers.]', minWords: 5, sample: 'This photo shows a lively farmers market. Vendors display fresh fruit while customers browse the stalls on a sunny day.' }),
@@ -385,8 +366,8 @@ const QUESTION_BANK = [
     { text: 'synthesis', real: true }, { text: 'twaxnor', real: false }
   ], correct: ['hypothesis', 'empirical', 'corroborate', 'synthesis'] }),
   q({ id: 'fb12', type: 'fill-blanks', qtext: 'The diplomat attempted to _____ negotiations after the incident.', qsub: 'Verb needed.', hint: 'Restart or resume talks.', tip: 'Formal register fits diplomatic context.', options: ['suspend', 'resume', 'abandon', 'ignore'], correct: 1 }),
-  q({ id: 'rc06', type: 'read-complete', qtext: 'Complete missing letters.', qsub: 'One gap.', hint: 'Synonym for begin.', tip: 'Type lowercase only.', passage: 'The experiment will comm___nce next Monday.', gaps: [{ index: 0, answer: 'e' }], fullPassage: 'The experiment will commence next Monday.' }),
-  q({ id: 'rc07', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'Two gaps in one sentence.', hint: 'Technology vocabulary.', tip: 'Count underscores — type that many letters.', passage: 'Art___ficial intelligence is transform___ng industries worldwide.', gaps: [{ index: 0, answer: 'i' }, { index: 1, answer: 'i' }], fullPassage: 'Artificial intelligence is transforming industries worldwide.' }),
+  q({ id: 'rc06', type: 'read-complete', qtext: 'Complete missing letters.', qsub: 'One letter per blank.', hint: 'Word means to begin or start.', tip: 'Type lowercase only.', passage: 'The experiment will comm_nce next Monday.', gaps: [{ index: 0, answer: 'e' }], fullPassage: 'The experiment will commence next Monday.', explanationUR: "'Commence' matlab shuru karna — formal word hai. Experiment Monday ko start hoga — yaad rakho comm-e-nce." }),
+  q({ id: 'rc07', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'One letter per blank.', hint: 'AI vocabulary.', tip: 'Each blank hides one letter.', passage: 'Artif_cial intelligence is transform_ng industries worldwide.', gaps: [{ index: 0, answer: 'i' }, { index: 1, answer: 'i' }], fullPassage: 'Artificial intelligence is transforming industries worldwide.', explanationUR: "'Artificial' matlab banaya hua, natural nahi. 'Transforming' yani poori tarah badal dena — AI industries ko change kar rahi hai." }),
   q({ id: 'ha05', type: 'highlight-answer', qtext: 'Highlight the sentence that answers the question.', qsub: 'Detail in passage.', hint: 'Find mention of cost.', tip: 'Question keywords appear in the correct sentence.', question: 'Why did the startup reduce staff?', sentences: [
     'The startup grew quickly in its first year.',
     'Rising server costs forced the company to reduce staff by ten percent.',

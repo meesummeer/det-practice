@@ -14,8 +14,6 @@ A **static** Duolingo English Test (DET) practice hub: mock exam with Roman Urdu
 | **Practice Test** | `practice-test.html` | ~27-question mock DET (11 types), timers, tutor after each answer |
 | **Mini-Games** | `minigames.html` | Has/Have, Is/Are/Was/Were, Word Drop, Odd One Out |
 | **Word Bank** | `wordbank.html` | 120 words, categories, search, mark learned |
-| **Tutor Library** | `tutor.html` | Browse all question explanations (EN + Roman Urdu) |
-
 Speaking tasks (Read Aloud, Speak About Photo, Read Then Speak) are **not** included — no AI speaking judge in this version.
 
 ---

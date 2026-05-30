@@ -152,29 +152,25 @@ const Renderer = (function () {
   function renderReadComplete(q, answer, container, opts) {
     const letters = answer?.letters || [];
     const locked = opts.locked;
-    const parts = q.passage.split(/(_+)/g);
     let gapIdx = 0;
     let html = headerHtml(q) + '<div class="complete-passage">';
-    parts.forEach(part => {
-      if (/^_+$/.test(part)) {
+    for (let i = 0; i < q.passage.length; i++) {
+      const ch = q.passage[i];
+      if (ch === '_') {
         const g = q.gaps[gapIdx] || { answer: '' };
-        const ans = String(g.answer || '');
-        const len = ans.length;
-        const size = len + 1;
-        const minWidth = (len * 14) + 'px';
+        const expected = String(g.answer || '').toLowerCase();
         const val = letters[gapIdx] || '';
         let cls = 'letter-input';
         if (val) cls += ' filled';
         if (locked) {
-          const ok = val.toLowerCase() === ans.toLowerCase();
-          cls += ok ? ' correct' : ' wrong';
+          cls += val.toLowerCase() === expected ? ' correct' : ' wrong';
         }
-        html += `<input type="text" class="${cls}" maxlength="${len}" size="${size}" style="min-width:${minWidth};width:${minWidth}" data-gap="${gapIdx}" value="${escapeHtml(val)}" ${locked ? 'readonly' : ''} aria-label="Gap ${gapIdx + 1}">`;
+        html += `<input type="text" class="${cls}" maxlength="1" size="2" style="min-width:28px;width:28px" data-gap="${gapIdx}" value="${escapeHtml(val)}" ${locked ? 'readonly' : ''} aria-label="Gap ${gapIdx + 1}">`;
         gapIdx++;
       } else {
-        html += escapeHtml(part);
+        html += escapeHtml(ch);
       }
-    });
+    }
     html += '</div>';
     if (locked) {
       html += `<div class="reveal-box" style="margin-top:12px"><strong>Full text:</strong> ${escapeHtml(revealFullPassage(q))}</div>`;
@@ -186,8 +182,7 @@ const Renderer = (function () {
       const inputs = container.querySelectorAll('.letter-input');
       inputs.forEach((inp, i) => {
         inp.addEventListener('input', () => {
-          const max = parseInt(inp.maxLength, 10) || 1;
-          inp.value = inp.value.slice(0, max).toLowerCase();
+          inp.value = inp.value.slice(0, 1).toLowerCase();
           inp.classList.toggle('filled', !!inp.value);
           const arr = [...inputs].map(x => x.value);
           opts.onChange({ letters: arr });
@@ -206,14 +201,16 @@ const Renderer = (function () {
 
   function revealFullPassage(q) {
     if (q.fullPassage) return q.fullPassage;
-    const parts = q.passage.split(/(_+)/g);
     let gapIdx = 0;
-    return parts.map(part => {
-      if (/^_+$/.test(part)) {
-        return (q.gaps[gapIdx++] || {}).answer || '';
+    let out = '';
+    for (let i = 0; i < q.passage.length; i++) {
+      if (q.passage[i] === '_') {
+        out += (q.gaps[gapIdx++] || {}).answer || '';
+      } else {
+        out += q.passage[i];
       }
-      return part;
-    }).join('');
+    }
+    return out;
   }
 
   function renderCompleteSentences(q, answer, container, opts) {

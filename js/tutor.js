@@ -19,7 +19,7 @@ const Tutor = (function () {
       case 'title-passage':
         return q.options && q.correct !== undefined ? q.options[q.correct] : '';
       case 'read-complete':
-        return q.fullPassage || (q.gaps || []).map(g => g.answer).join(', ');
+        return q.fullPassage || (typeof Renderer !== 'undefined' ? Renderer.revealFullPassage(q) : (q.gaps || []).map(g => g.answer).join(''));
       case 'complete-sentences':
         return (q.blanks || []).map((b, i) => `${i + 1}: ${b.options[b.correct]}`).join('; ');
       case 'complete-passage':
@@ -44,7 +44,9 @@ const Tutor = (function () {
       case 'read-select':
         return `The real words are: ${ans}. Fake DET words look English but are invented — they often have strange endings or cannot be used naturally in a sentence. Trust the words you have seen in reading and academic texts.`;
       case 'read-complete':
-        return `Type only the missing letters for each gap (${ans}). Use the letters before and after each blank to guess the full word, then enter just the hidden letters — not the whole word.`;
+        return q.fullPassage
+          ? `The complete sentence is: "${q.fullPassage}". Each blank is one letter — use context to find the hidden word.`
+          : `Fill in one letter per blank to complete the hidden words.`;
       case 'highlight-answer':
         return `The correct sentence directly answers: "${q.question}". It says: "${ans}". Other sentences mention related ideas but do not answer this specific question.`;
       case 'identify-idea':
@@ -65,6 +67,9 @@ const Tutor = (function () {
 
   function generateUR(q) {
     if (q.explanationUR) return q.explanationUR;
+    if (typeof EXPLANATION_UR_BY_ID !== 'undefined' && EXPLANATION_UR_BY_ID[q.id]) {
+      return EXPLANATION_UR_BY_ID[q.id];
+    }
     if (OVERRIDES[q.id]) return OVERRIDES[q.id].explanationUR;
     const ans = correctAnswerText(q);
     switch (q.type) {
@@ -73,7 +78,7 @@ const Tutor = (function () {
       case 'read-select':
         return `Asli words: ${ans}. Fake words real lagte hain lekin use nahi hote — agar sentence mein rakho toh ajeeb lagta hai. Jo words pehle parh chuke ho, un par trust karo.`;
       case 'read-complete':
-        return `Har blank mein sirf missing letters likho (${ans}). Pehle/baad ke letters se word guess karo — poora word mat likho.`;
+        return q.explanationUR || 'Hidden words ke letters context se guess karo — har blank sirf ek letter hai.';
       case 'highlight-answer':
         return `Sahi sentence woh hai jo "${q.question}" ka direct jawab de. Baqi lines topic se related ho sakti hain lekin exact answer nahi hain.`;
       case 'identify-idea':
@@ -135,11 +140,15 @@ const Tutor = (function () {
   }
 
   function urTipShort(q) {
+    if (q.explanationUR) return q.explanationUR;
+    if (typeof EXPLANATION_UR_BY_ID !== 'undefined' && EXPLANATION_UR_BY_ID[q.id]) {
+      return EXPLANATION_UR_BY_ID[q.id];
+    }
     const tips = {
-      'fill-blanks': "Blank se pehle baad poora sentence parho — sirf ek word mat dekho.",
-      'read-select': "Jo word ajeeb lage ya kabhi na suna ho, woh fake ho sakta hai.",
-      'read-complete': "Sirf missing letters type karo — poora word nahi.",
-      default: "DET mein time kam hai — pehle question, phir options, phir answer."
+      'fill-blanks': "Sahi word ka matlab sentence ke andar dekho — grammar + meaning dono match hone chahiye.",
+      'read-select': "Real word bol kar suno — agar ajeeb lage toh fake hai.",
+      'read-complete': "Har _ ek letter hai — letters around blank se poora word guess karo.",
+      default: "DET mein pehle context samjho, phir answer choose karo."
     };
     return tips[q.type] || tips.default;
   }
