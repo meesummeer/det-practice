@@ -118,7 +118,9 @@ function buildExplanationEN(q, ans) {
     case 'read-select':
       return `Real words: ${ans}. Fake words look English but are invented; they often cannot be used naturally in a real sentence.`;
     case 'read-complete':
-      return `Missing letters: ${ans}. Use surrounding letters to guess each word, then type only the hidden letters.`;
+      return q.fullPassage
+        ? `The complete sentence is: "${q.fullPassage}". Type only the missing letters in each blank — not the full word.`
+        : `Missing letters: ${ans}. Use surrounding letters to guess each word, then type only the hidden letters.`;
     case 'highlight-answer':
       return `Correct: "${ans}". This sentence answers: "${q.question}". Other lines are related but not a direct answer.`;
     case 'identify-idea':
@@ -147,7 +149,9 @@ function buildExplanationUR(q, ans) {
     case 'read-select':
       return `Asli words: ${ans}. Fake words ajeeb lagte hain jab sentence mein use karo — instinct par trust karo.`;
     case 'read-complete':
-      return `Missing letters: ${ans}. Sirf gap wale letters likho, poora word nahi.`;
+      return q.fullPassage
+        ? `Poora sentence: "${q.fullPassage}". Sirf blank wale letters likho — poora word nahi.`
+        : `Missing letters: ${ans}. Sirf gap wale letters likho, poora word nahi.`;
     case 'highlight-answer':
       return `Sahi line: "${ans}". Ye "${q.question}" ka direct jawab hai.`;
     case 'identify-idea':
@@ -250,11 +254,11 @@ const QUESTION_BANK = [
   q({ id: 'fb11', type: 'fill-blanks', qtext: 'Data privacy laws _____ how companies collect user information.', qsub: 'Regulate or control.', hint: 'Govern or dictate rules.', tip: 'Subject–verb agreement: laws + plural verb.', options: ['mandate', 'prevent', 'encourage', 'abolish'], correct: 0 }),
 
   // —— Read & Complete (4+) ——
-  q({ id: 'rc01', type: 'read-complete', qtext: 'Complete the text with the missing letters.', qsub: 'Type each missing letter.', hint: 'Use surrounding letters as strong clues.', tip: 'Tab moves to next blank on the real test — practice flow.', passage: 'Climate change poses an urgent ch___lenge to coastal cities worldwide.', gaps: [{ index: 0, answer: 'a' }] }),
-  q({ id: 'rc02', type: 'read-complete', qtext: 'Fill in the missing letters.', qsub: 'Short academic snippet.', hint: 'The word means proof or support.', tip: 'Only missing letters are typed — not full words.', passage: 'The study provides comp___ling ev___ence for the hypothesis.', gaps: [{ index: 0, answer: 'e' }, { index: 1, answer: 'i' }] }),
-  q({ id: 'rc03', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'Read the whole sentence first.', hint: 'Technology + society keyword.', tip: 'Common letters: e, i, a appear often in gaps.', passage: 'Digital lit___acy is essential in modern ed___cation systems.', gaps: [{ index: 0, answer: 'e' }, { index: 1, answer: 'u' }] }),
-  q({ id: 'rc04', type: 'read-complete', qtext: 'Type the missing letters.', qsub: 'Academic register.', hint: 'Word means widespread.', tip: 'Do not type capital letters unless shown.', passage: 'Smartphones have become ub___uitous in urban house___olds.', gaps: [{ index: 0, answer: 'i' }, { index: 1, answer: 'h' }] }),
-  q({ id: 'rc05', type: 'read-complete', qtext: 'Complete the text.', qsub: 'Multiple gaps in one sentence.', hint: 'Renewable energy context.', tip: 'Wrong letters cannot be submitted — keep trying.', passage: 'Solar power offers a sust___inable alt___native to fossil fuels.', gaps: [{ index: 0, answer: 'a' }, { index: 1, answer: 'e' }] }),
+  q({ id: 'rc01', type: 'read-complete', qtext: 'Complete the text with the missing letters.', qsub: 'Type each missing letter.', hint: 'Use surrounding letters as strong clues.', tip: 'Tab moves to next blank on the real test — practice flow.', passage: 'Climate change poses an urgent ch____lenge to coastal cities worldwide.', gaps: [{ index: 0, answer: 'alle' }], fullPassage: 'Climate change poses an urgent challenge to coastal cities worldwide.' }),
+  q({ id: 'rc02', type: 'read-complete', qtext: 'Fill in the missing letters.', qsub: 'Short academic snippet.', hint: 'The word means proof or support.', tip: 'Only missing letters are typed — not full words.', passage: 'The study provides comp___ling ev__ence for the hypothesis.', gaps: [{ index: 0, answer: 'ell' }, { index: 1, answer: 'id' }], fullPassage: 'The study provides compelling evidence for the hypothesis.' }),
+  q({ id: 'rc03', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'Read the whole sentence first.', hint: 'Technology + society keyword.', tip: 'Common letters: e, i, a appear often in gaps.', passage: 'Digital lit__acy is essential in modern ed_cation systems.', gaps: [{ index: 0, answer: 'er' }, { index: 1, answer: 'u' }], fullPassage: 'Digital literacy is essential in modern education systems.' }),
+  q({ id: 'rc04', type: 'read-complete', qtext: 'Type the missing letters.', qsub: 'Academic register.', hint: 'Word means widespread.', tip: 'Do not type capital letters unless shown.', passage: 'Smartphones have become ub__uitous in urban house__olds.', gaps: [{ index: 0, answer: 'iq' }, { index: 1, answer: 'eh' }], fullPassage: 'Smartphones have become ubiquitous in urban households.' }),
+  q({ id: 'rc05', type: 'read-complete', qtext: 'Complete the text.', qsub: 'Multiple gaps in one sentence.', hint: 'Renewable energy context.', tip: 'Wrong letters cannot be submitted — keep trying.', passage: 'Solar power offers a sust___inable alt__native to fossil fuels.', gaps: [{ index: 0, answer: 'ain' }, { index: 1, answer: 'er' }], fullPassage: 'Solar power offers a sustainable alternative to fossil fuels.' }),
 
   // —— Write About Photo (4+) ——
   q({ id: 'wp01', type: 'write-photo', qtext: 'Describe the image in at least one sentence.', qsub: 'You have 60 seconds. Write in English.', hint: 'Cover who, what, where, and what is happening.', tip: 'On DET, write 1–3 clear sentences — not an essay.', imageDesc: '[Photo: A busy farmers market with colorful fruit stalls and shoppers.]', minWords: 5, sample: 'This photo shows a lively farmers market. Vendors display fresh fruit while customers browse the stalls on a sunny day.' }),
@@ -381,7 +385,8 @@ const QUESTION_BANK = [
     { text: 'synthesis', real: true }, { text: 'twaxnor', real: false }
   ], correct: ['hypothesis', 'empirical', 'corroborate', 'synthesis'] }),
   q({ id: 'fb12', type: 'fill-blanks', qtext: 'The diplomat attempted to _____ negotiations after the incident.', qsub: 'Verb needed.', hint: 'Restart or resume talks.', tip: 'Formal register fits diplomatic context.', options: ['suspend', 'resume', 'abandon', 'ignore'], correct: 1 }),
-  q({ id: 'rc06', type: 'read-complete', qtext: 'Complete missing letters.', qsub: 'One gap.', hint: 'Synonym for begin.', tip: 'Type lowercase only.', passage: 'The experiment will comm___ce next Monday.', gaps: [{ index: 0, answer: 'e' }] }),
+  q({ id: 'rc06', type: 'read-complete', qtext: 'Complete missing letters.', qsub: 'One gap.', hint: 'Synonym for begin.', tip: 'Type lowercase only.', passage: 'The experiment will comm___nce next Monday.', gaps: [{ index: 0, answer: 'e' }], fullPassage: 'The experiment will commence next Monday.' }),
+  q({ id: 'rc07', type: 'read-complete', qtext: 'Complete the missing letters.', qsub: 'Two gaps in one sentence.', hint: 'Technology vocabulary.', tip: 'Count underscores — type that many letters.', passage: 'Art___ficial intelligence is transform___ng industries worldwide.', gaps: [{ index: 0, answer: 'i' }, { index: 1, answer: 'i' }], fullPassage: 'Artificial intelligence is transforming industries worldwide.' }),
   q({ id: 'ha05', type: 'highlight-answer', qtext: 'Highlight the sentence that answers the question.', qsub: 'Detail in passage.', hint: 'Find mention of cost.', tip: 'Question keywords appear in the correct sentence.', question: 'Why did the startup reduce staff?', sentences: [
     'The startup grew quickly in its first year.',
     'Rising server costs forced the company to reduce staff by ten percent.',

@@ -19,7 +19,7 @@ const Tutor = (function () {
       case 'title-passage':
         return q.options && q.correct !== undefined ? q.options[q.correct] : '';
       case 'read-complete':
-        return (q.gaps || []).map(g => g.answer).join(', ');
+        return q.fullPassage || (q.gaps || []).map(g => g.answer).join(', ');
       case 'complete-sentences':
         return (q.blanks || []).map((b, i) => `${i + 1}: ${b.options[b.correct]}`).join('; ');
       case 'complete-passage':
@@ -116,11 +116,15 @@ const Tutor = (function () {
         </div>`;
     } else {
       const ans = correctAnswerText(q);
+      const fullText = q.type === 'read-complete' && (q.fullPassage || Renderer.revealFullPassage(q))
+        ? `<div class="tutor-answer-box"><strong>Full text:</strong> ${escapeHtml(q.fullPassage || Renderer.revealFullPassage(q))}</div>`
+        : '';
       container.innerHTML = `
         <div class="tutor-panel tutor-wrong" role="status">
           <div class="tutor-icon anim-x">✗</div>
           <p class="tutor-title">Galat — sahi jawab dekho</p>
           <div class="tutor-answer-box"><strong>Correct:</strong> ${escapeHtml(ans)}</div>
+          ${fullText}
           <p class="tutor-explain-en">${escapeHtml(generateEN(q))}</p>
           <p class="tutor-explain-ur">${escapeHtml(generateUR(q))}</p>
           <p class="tutor-memory"><strong>Memory tip:</strong> ${escapeHtml(memoryTip(q))}</p>

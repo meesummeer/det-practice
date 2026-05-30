@@ -131,6 +131,8 @@
   const endScreen = document.getElementById('game-end');
   const content = document.getElementById('game-content');
   const feedback = document.getElementById('game-feedback');
+  const btnNext = document.getElementById('btn-game-next');
+  let awaitingNext = false;
 
   ['has', 'is', 'drop', 'odd'].forEach(id => {
     const labels = { has: 'Has or Have?', is: 'Is / Are / Was / Were', drop: 'Word Drop', odd: 'Odd One Out' };
@@ -166,7 +168,8 @@
 
   function renderRound() {
     updateHud();
-    feedback.hidden = true;
+    awaitingNext = false;
+    if (btnNext) btnNext.hidden = true;
     if (idx >= TOTAL || lives <= 0) return endGame();
 
     if (game === 'has' || game === 'is') renderAux();
@@ -223,6 +226,9 @@
   }
 
   function pick(el, ok, meta) {
+    if (awaitingNext) return;
+    awaitingNext = true;
+    content.querySelectorAll('button').forEach(b => { b.disabled = true; });
     if (ok) {
       el.classList.add('correct-flash');
       score++;
@@ -241,7 +247,7 @@
       }
       showFb(msg, false);
     }
-    setTimeout(() => { idx++; renderRound(); }, ok ? 600 : 1400);
+    if (btnNext) btnNext.hidden = false;
   }
 
   function showFb(text, ok) {
@@ -249,6 +255,14 @@
     feedback.textContent = text;
     feedback.className = 'game-feedback ' + (ok ? 'ok' : 'bad');
   }
+
+  btnNext?.addEventListener('click', () => {
+    if (!awaitingNext) return;
+    feedback.hidden = true;
+    btnNext.hidden = true;
+    idx++;
+    renderRound();
+  });
 
   function updateHud() {
     document.getElementById('game-score').textContent = score;

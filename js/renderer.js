@@ -158,16 +158,18 @@ const Renderer = (function () {
     parts.forEach(part => {
       if (/^_+$/.test(part)) {
         const g = q.gaps[gapIdx] || { answer: '' };
-        const len = Math.max(1, (g.answer || '').length);
+        const ans = String(g.answer || '');
+        const len = ans.length;
+        const size = len + 1;
+        const minWidth = (len * 14) + 'px';
         const val = letters[gapIdx] || '';
-        const width = `${Math.max(1.5, len * 1.1)}em`;
         let cls = 'letter-input';
         if (val) cls += ' filled';
         if (locked) {
-          const ok = val.toLowerCase() === (g.answer || '').toLowerCase();
+          const ok = val.toLowerCase() === ans.toLowerCase();
           cls += ok ? ' correct' : ' wrong';
         }
-        html += `<input type="text" class="${cls}" maxlength="${len}" size="${len}" style="width:${width}" data-gap="${gapIdx}" value="${escapeHtml(val)}" ${locked ? 'readonly' : ''} aria-label="Gap ${gapIdx + 1}">`;
+        html += `<input type="text" class="${cls}" maxlength="${len}" size="${size}" style="min-width:${minWidth};width:${minWidth}" data-gap="${gapIdx}" value="${escapeHtml(val)}" ${locked ? 'readonly' : ''} aria-label="Gap ${gapIdx + 1}">`;
         gapIdx++;
       } else {
         html += escapeHtml(part);
@@ -184,7 +186,8 @@ const Renderer = (function () {
       const inputs = container.querySelectorAll('.letter-input');
       inputs.forEach((inp, i) => {
         inp.addEventListener('input', () => {
-          inp.value = inp.value.slice(0, parseInt(inp.maxLength, 10)).toLowerCase();
+          const max = parseInt(inp.maxLength, 10) || 1;
+          inp.value = inp.value.slice(0, max).toLowerCase();
           inp.classList.toggle('filled', !!inp.value);
           const arr = [...inputs].map(x => x.value);
           opts.onChange({ letters: arr });
@@ -202,6 +205,7 @@ const Renderer = (function () {
   }
 
   function revealFullPassage(q) {
+    if (q.fullPassage) return q.fullPassage;
     const parts = q.passage.split(/(_+)/g);
     let gapIdx = 0;
     return parts.map(part => {

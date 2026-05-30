@@ -1,14 +1,11 @@
 /**
- * Word Bank UI — filter, search, lazy load, quiz, learned
+ * Word Bank UI — filter, search, expandable cards, learned
  */
 (function () {
   const PAGE = 20;
   let category = '';
   let query = '';
   let visible = PAGE;
-  let quizMode = false;
-  let quizIdx = 0;
-  let quizDeck = [];
 
   const learned = new Set(DETStorage.get(DETStorage.KEYS.learned, []));
 
@@ -16,7 +13,6 @@
   const list = document.getElementById('wb-list');
   const search = document.getElementById('wb-search');
   const loadBtn = document.getElementById('btn-load-more');
-  const quizPrompt = document.getElementById('quiz-prompt');
 
   const categories = ['All', ...new Set(WORD_BANK.map(w => w.category))];
 
@@ -50,7 +46,7 @@
     return WORD_BANK.find(w => w.word.toLowerCase() === name.toLowerCase());
   }
 
-  function renderCard(w, hideMeanings) {
+  function renderCard(w) {
     const isLearned = learned.has(w.word);
     const syns = (w.synonyms || []).map(s => {
       const hit = wordByName(s);
@@ -63,7 +59,8 @@
         <div class="wb-card-head">
           <div>
             <h3>${escapeHtml(w.word)}</h3>
-            ${hideMeanings ? '<p class="wb-ur">?</p>' : `<p>${escapeHtml(w.meaningEN)}</p><p class="wb-ur">${escapeHtml(w.meaningUR)}</p>`}
+            <p>${escapeHtml(w.meaningEN)}</p>
+            <p class="wb-ur">${escapeHtml(w.meaningUR)}</p>
           </div>
           <span>${isLearned ? '✅' : '▾'}</span>
         </div>
@@ -84,7 +81,7 @@
   function render() {
     const items = filtered();
     const slice = items.slice(0, visible);
-    list.innerHTML = slice.map(w => renderCard(w, quizMode)).join('');
+    list.innerHTML = slice.map(w => renderCard(w)).join('');
     loadBtn.hidden = visible >= items.length;
     loadBtn.textContent = `Load more (${items.length - visible} left)`;
 
@@ -131,41 +128,6 @@
   loadBtn.addEventListener('click', () => {
     visible += PAGE;
     render();
-  });
-
-  document.getElementById('btn-quiz').addEventListener('click', () => {
-    quizMode = true;
-    quizDeck = fisherYates(filtered()).slice(0, 10);
-    quizIdx = 0;
-    document.getElementById('btn-quiz-end').hidden = false;
-    showQuiz();
-  });
-
-  document.getElementById('btn-quiz-end').addEventListener('click', () => {
-    quizMode = false;
-    quizPrompt.hidden = true;
-    document.getElementById('btn-quiz-end').hidden = true;
-    render();
-  });
-
-  function showQuiz() {
-    if (quizIdx >= quizDeck.length) {
-      quizPrompt.textContent = 'Quiz done! +50 XP';
-      DETStorage.addXP(50);
-      quizMode = false;
-      setTimeout(() => { quizPrompt.hidden = true; render(); }, 2000);
-      return;
-    }
-    const w = quizDeck[quizIdx];
-    quizPrompt.hidden = false;
-    quizPrompt.textContent = `What category fits "${w.word}"? (Check answer by expanding card)`;
-    list.innerHTML = renderCard(w, true);
-    quizIdx++;
-    list.querySelector('.wb-card')?.classList.add('open');
-  }
-
-  list.addEventListener('click', () => {
-    if (quizMode && quizIdx <= quizDeck.length) showQuiz();
   });
 
   render();
