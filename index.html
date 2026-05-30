@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DET Practice Simulator</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Welcome -->
+    <div id="screen-welcome" class="screen active">
+      <header class="welcome-header">
+        <div class="logo">DET<span>Practice</span></div>
+        <h1>Duolingo English Test Practice Simulator</h1>
+        <p class="welcome-sub">Practice all 19 DET question types in a realistic session flow. ~30 randomized questions per run.</p>
+      </header>
+      <main class="welcome-main">
+        <div class="welcome-card">
+          <h2>What to expect</h2>
+          <ul>
+            <li><strong>4 sections</strong> — Adaptive, Writing, Interactive Reading, Speaking</li>
+            <li><strong>Timers</strong> on timed writing and speaking tasks</li>
+            <li><strong>Hints &amp; reveal</strong> for learning (not available on the real test)</li>
+            <li><strong>Estimated score</strong> on a 10–160 scale with four subscores</li>
+          </ul>
+        </div>
+        <button id="btn-start" class="btn btn-primary btn-large">Start Practice Test</button>
+      </main>
+    </div>
+
+    <!-- Test -->
+    <div id="screen-test" class="screen">
+      <header class="topbar">
+        <div class="logo-sm">DET<span>Practice</span></div>
+        <div class="section-label" id="topbar-section">Section</div>
+        <div class="timer-display" id="topbar-timer" aria-live="polite"></div>
+      </header>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+      </div>
+      <main class="question-area" id="question-area"></main>
+      <nav class="bottom-nav" id="bottom-nav">
+        <button type="button" class="nav-btn" id="btn-back" disabled>Back</button>
+        <button type="button" class="nav-btn" id="btn-skip">Skip</button>
+        <div class="nav-dots" id="nav-dots" aria-label="Question progress"></div>
+        <button type="button" class="nav-btn nav-btn-hint" id="btn-hint">Hint</button>
+        <button type="button" class="nav-btn nav-btn-reveal" id="btn-reveal">Reveal Answer</button>
+        <button type="button" class="nav-btn nav-btn-next" id="btn-next">Next</button>
+      </nav>
+    </div>
+
+    <!-- Section break -->
+    <div id="screen-break" class="screen">
+      <header class="topbar topbar-minimal">
+        <div class="logo-sm">DET<span>Practice</span></div>
+      </header>
+      <main class="break-main" id="break-content"></main>
+      <nav class="bottom-nav bottom-nav-single">
+        <button type="button" class="nav-btn nav-btn-next" id="btn-break-continue">Continue</button>
+      </nav>
+    </div>
+
+    <!-- Results -->
+    <div id="screen-results" class="screen">
+      <header class="topbar topbar-minimal">
+        <div class="logo-sm">DET<span>Practice</span></div>
+      </header>
+      <main class="results-main" id="results-content"></main>
+      <nav class="bottom-nav bottom-nav-single">
+        <button type="button" class="nav-btn nav-btn-next" id="btn-retake">Retake Test</button>
+        <button type="button" class="nav-btn" id="btn-home">Back to Home</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="js/questions.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
