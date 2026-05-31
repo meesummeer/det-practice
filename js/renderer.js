@@ -283,9 +283,12 @@ const Renderer = (function () {
         <textarea id="writing-input" placeholder="Type your response..." ${locked ? 'readonly' : ''}>${escapeHtml(text)}</textarea>
         <div class="word-count${wc >= min ? ' met' : ''}" data-min="${min}">${wc} words${min ? ` (min ${min})` : ''}</div>
       </div>
-      ${!locked ? '<button type="button" class="btn btn-primary btn-check" id="btn-done-writing">Done — check writing</button>' : ''}`;
+      ${!locked ? `<button type="button" class="btn-ai-check" id="btn-ai-check-writing"><span class="btn-ai-label">✦ Check My Writing</span></button>` : ''}
+      <div id="ai-feedback-slot"></div>`;
     const ta = container.querySelector('textarea');
     const wcEl = container.querySelector('.word-count');
+    const feedbackSlot = container.querySelector('#ai-feedback-slot');
+
     const update = () => {
       const t = ta.value;
       const n = t.trim() ? t.trim().split(/\s+/).length : 0;
@@ -295,11 +298,23 @@ const Renderer = (function () {
       opts.onChange({ text: t, wordCount: n });
     };
     ta.addEventListener('input', update);
-    const done = container.querySelector('#btn-done-writing');
-    if (done) {
-      done.addEventListener('click', () => {
+
+    if (answer?.aiFeedback && feedbackSlot && typeof WritingAI !== 'undefined') {
+      WritingAI.renderFeedbackPanel(feedbackSlot, answer.aiFeedback);
+    } else if (answer?.aiFeedbackError && feedbackSlot && typeof WritingAI !== 'undefined') {
+      WritingAI.renderError(feedbackSlot, answer.aiFeedbackError);
+    }
+
+    const aiBtn = container.querySelector('#btn-ai-check-writing');
+    if (aiBtn && opts.onAiCheck) {
+      aiBtn.addEventListener('click', () => {
         update();
-        if (opts.onSubmit) opts.onSubmit({ text: ta.value, wordCount: wc });
+        opts.onAiCheck({
+          text: ta.value,
+          wordCount: ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0,
+          button: aiBtn,
+          feedbackSlot
+        });
       });
     }
   }

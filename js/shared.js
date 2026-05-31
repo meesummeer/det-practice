@@ -82,13 +82,13 @@ function escapeHtml(s) {
   return d.innerHTML;
 }
 
+/** @deprecated Use WritingAI.checkWriting in js/writing-ai.js */
 function judgeWriting(text, minWords, prompt) {
-  // TODO: Replace with Anthropic API call
   const wc = (text || '').trim() ? text.trim().split(/\s+/).length : 0;
   return {
     score: null,
     wordCount: wc,
     meetsMin: wc >= (minWords || 0),
-    feedback: 'AI grading coming soon. Self-assess for now.'
+    feedback: 'Use Check My Writing for AI feedback.'
   };
 }

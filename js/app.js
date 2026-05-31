@@ -98,7 +98,8 @@
     Renderer.render(q, ans, questionArea, ui, {
       locked,
       onChange: data => { state.answers[q.id] = { ...state.answers[q.id], ...data }; },
-      onSubmit: data => submitAnswer(q, data)
+      onSubmit: data => submitAnswer(q, data),
+      onAiCheck: isWritingType(q) ? payload => runAiWritingCheck(q, payload) : null
     });
 
     if (state.submitted[q.id] && state.grades[q.id]) {
@@ -112,6 +113,67 @@
     updateDots();
     updateXPBar();
     startTimer(q);
+  }
+
+  function isWritingType(q) {
+    return ['write-photo', 'interactive-writing', 'writing-sample'].includes(q?.type);
+  }
+
+  async function runAiWritingCheck(q, { text, wordCount, button, feedbackSlot }) {
+    if (!text || !text.trim()) {
+      WritingAI.renderError(feedbackSlot, 'Please write something before checking.');
+      return;
+    }
+
+    if (!WritingAI.getApiKey()) {
+      WritingAI.renderError(
+        feedbackSlot,
+        'API key not configured. Add your Anthropic API key to js/config.js (see README).'
+      );
+      return;
+    }
+
+    const label = button.querySelector('.btn-ai-label');
+    button.disabled = true;
+    if (label) {
+      label.innerHTML = '<span class="spinner"></span> Checking...';
+    }
+    WritingAI.renderLoading(feedbackSlot);
+
+    const prompt = WritingAI.writingPrompt(q);
+    const minWords = q.minWords || 0;
+
+    try {
+      const feedback = await WritingAI.checkWriting(text, prompt, minWords);
+      state.answers[q.id] = {
+        ...state.answers[q.id],
+        text,
+        wordCount,
+        aiFeedback: feedback,
+        aiFeedbackError: null
+      };
+      WritingAI.renderFeedbackPanel(feedbackSlot, feedback);
+    } catch (err) {
+      let msg = 'Could not connect to AI checker. Check your internet and try again.';
+      if (err.code === 'NO_KEY') {
+        msg = 'API key not configured. Add your Anthropic API key to js/config.js (see README).';
+      } else if (err instanceof SyntaxError || err.code === 'PARSE') {
+        msg = 'AI checker returned an unexpected response. Please try again.';
+      } else if (err.code === 'API_ERROR' || err.name === 'TypeError') {
+        msg = 'Could not reach AI. Check your internet connection.';
+      }
+      state.answers[q.id] = {
+        ...state.answers[q.id],
+        text,
+        wordCount,
+        aiFeedback: null,
+        aiFeedbackError: msg
+      };
+      WritingAI.renderError(feedbackSlot, msg);
+    } finally {
+      button.disabled = false;
+      if (label) label.textContent = '✦ Check My Writing';
+    }
   }
 
   function flashResult(status) {
@@ -160,8 +222,10 @@
           alert('Please answer this question first, or tap Skip.');
         } else if (q.type === 'read-select') {
           alert('Select the real words, then tap Next.');
+        } else if (isWritingType(q)) {
+          alert('Write your answer, optionally use Check My Writing, then tap Next.');
         } else {
-          alert('Write your answer and tap Done, or Skip.');
+          alert('Please answer this question first, or tap Skip.');
         }
         return;
       }

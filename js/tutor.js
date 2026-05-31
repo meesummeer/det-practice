@@ -105,9 +105,10 @@ const Tutor = (function () {
     const correct = grade.status === 'correct' || grade.status === 'partial';
     const writingTypes = ['write-photo', 'interactive-writing', 'writing-sample'];
     let writingBlock = '';
-    if (writingTypes.includes(q.type) && answer?.text) {
-      const j = judgeWriting(answer.text, q.minWords, q.qtext);
-      writingBlock = `<div class="tutor-writing-ai"><strong>Writing check:</strong> ${escapeHtml(j.feedback)} (${j.wordCount} words)</div>`;
+    if (writingTypes.includes(q.type) && answer?.aiFeedback) {
+      writingBlock = `<div class="tutor-writing-ai"><strong>AI score:</strong> ${escapeHtml(answer.aiFeedback.overallScore || '')} — see feedback above.</div>`;
+    } else if (writingTypes.includes(q.type) && answer?.text) {
+      writingBlock = `<div class="tutor-writing-ai"><strong>Tip:</strong> Use ✦ Check My Writing for detailed AI feedback before tapping Next.</div>`;
     }
 
     if (correct) {

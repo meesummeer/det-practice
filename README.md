@@ -107,9 +107,26 @@ q({
 
 ---
 
-## Writing AI (future)
+## AI Writing Checker Setup
 
-`judgeWriting()` in `js/shared.js` is a placeholder. Replace with an API call when ready (`// TODO: Replace with Anthropic API call`).
+The practice test can score **write-photo**, **interactive-writing**, and **writing-sample** answers with Claude (`claude-sonnet-4-20250514`).
+
+1. Get an API key at [console.anthropic.com](https://console.anthropic.com).
+2. Copy the example config:
+   ```bash
+   cp js/config.example.js js/config.js
+   ```
+3. Edit `js/config.js`:
+   ```javascript
+   const CONFIG = {
+     ANTHROPIC_API_KEY: 'sk-ant-api03-...'
+   };
+   ```
+4. `js/config.js` is in `.gitignore` — **never commit** your real key.
+5. Open `practice-test.html` locally (or serve with `python3 -m http.server`).
+6. On a public GitHub Pages deploy **without** `config.js`, the checker shows: *API key not configured*.
+
+Click **✦ Check My Writing** below the textarea. Feedback stays visible until you tap **Next**.
 
 ---
 
