@@ -69,10 +69,15 @@ const Renderer = (function () {
     }
   }
 
+  function shuffleArray(arr) {
+    return fisherYates(arr || []);
+  }
+
   function renderReadSelect(q, answer, container, opts) {
     const selected = new Set(answer?.selected || []);
     const locked = opts.locked;
-    const chips = (q.words || []).map(w => {
+    const shuffledWords = shuffleArray(q.words);
+    const chips = shuffledWords.map(w => {
       const sel = selected.has(w.text) ? ' selected' : '';
       const ok = locked && (q.correct || []).includes(w.text);
       const bad = locked && selected.has(w.text) && !ok;

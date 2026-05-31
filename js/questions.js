@@ -219,6 +219,113 @@ const QUESTION_BANK = [
     { text: 'perfunctory', real: true }, { text: 'wexlard', real: false }
   ], correct: ['parsimonious', 'effervescent', 'intransigent', 'perfunctory'] }),
 
+  // —— Read & Select (rs21–rs35) ——
+  q({ id: 'rs21', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Academic linking words often end in -ous, -ent, or -ent.', tip: 'Real words sound natural when you use them in a sentence.', words: [
+    { text: 'analyze', real: true }, { text: 'blivthor', real: false }, { text: 'coherent', real: true },
+    { text: 'snorzive', real: false }, { text: 'ambiguous', real: true }, { text: 'credinal', real: false },
+    { text: 'subsequent', real: true }, { text: 'mortavex', real: false }
+  ], correct: ['analyze', 'coherent', 'ambiguous', 'subsequent'],
+    explanationEN: "These four are common academic English words. 'Analyze' means to examine carefully, 'coherent' means logically connected, 'ambiguous' means unclear or having two meanings, 'subsequent' means coming after.",
+    explanationUR: "'Analyze' matlab hai gehri nazar se dekhna. 'Coherent' matlab hai jo baat logically connected ho. 'Ambiguous' matlab hai jo clear na ho — do meaning nikle. 'Subsequent' matlab hai baad mein aane wala." }),
+  q({ id: 'rs22', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Social-issue vocabulary — think news and policy texts.', tip: 'Fake words break rhythm when you try to say them aloud.', words: [
+    { text: 'advocate', real: true }, { text: 'snorplax', real: false }, { text: 'disparity', real: true },
+    { text: 'wexbrint', real: false }, { text: 'migrate', real: true }, { text: 'trelvane', real: false },
+    { text: 'inequality', real: true }, { text: 'clorvish', real: false }
+  ], correct: ['advocate', 'disparity', 'migrate', 'inequality'],
+    explanationEN: "All four relate to social issues. 'Advocate' means to support a cause, 'disparity' means a big difference, 'migrate' means to move from one place to another, 'inequality' means unfair difference.",
+    explanationUR: "'Advocate' matlab hai kisi cheez ka saath dena. 'Disparity' matlab hai bada farq. 'Migrate' matlab hai aik jagah se doosri jagah jana. 'Inequality' matlab hai nainsafi wala farq." }),
+  q({ id: 'rs23', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Tech terms you see in articles about apps and data.', tip: 'Trust words you have seen in digital contexts.', words: [
+    { text: 'algorithm', real: true }, { text: 'quibnash', real: false }, { text: 'encrypt', real: true },
+    { text: 'florptine', real: false }, { text: 'interface', real: true }, { text: 'brastnel', real: false },
+    { text: 'dataset', real: true }, { text: 'snorvate', real: false }
+  ], correct: ['algorithm', 'encrypt', 'interface', 'dataset'],
+    explanationEN: "These are technology vocabulary words. 'Algorithm' is a step-by-step process, 'encrypt' means to convert data into a code, 'interface' is a point of interaction, 'dataset' is a collection of data.",
+    explanationUR: "'Algorithm' matlab hai step-by-step kaam karne ka tarika. 'Encrypt' matlab hai data ko code mein badalna. 'Interface' matlab hai jahan do cheezein milti hain — jaise screen aur user. 'Dataset' matlab hai data ka collection." }),
+  q({ id: 'rs24', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Science lab and biology vocabulary.', tip: 'If you cannot define it roughly, suspect a fake.', words: [
+    { text: 'catalyst', real: true }, { text: 'mortavex', real: false }, { text: 'synthesis', real: true },
+    { text: 'quandlep', real: false }, { text: 'electrode', real: true }, { text: 'wexlard', real: false },
+    { text: 'organism', real: true }, { text: 'trindlep', real: false }
+  ], correct: ['catalyst', 'synthesis', 'electrode', 'organism'],
+    explanationEN: "All science vocabulary. 'Catalyst' speeds up a reaction, 'synthesis' is combining parts into a whole, 'electrode' conducts electricity, 'organism' is a living thing.",
+    explanationUR: "'Catalyst' matlab hai jo reaction ko tez kare. 'Synthesis' matlab hai alag cheezein milakar ek banana. 'Electrode' matlab hai bijli conduct karne wali cheez. 'Organism' matlab hai koi bhi zinda cheez." }),
+  q({ id: 'rs25', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Psychology and mind-related words.', tip: 'Say each word in a short sentence mentally.', words: [
+    { text: 'resilience', real: true }, { text: 'snorblat', real: false }, { text: 'cognition', real: true },
+    { text: 'blivnax', real: false }, { text: 'empathy', real: true }, { text: 'florbtish', real: false },
+    { text: 'perception', real: true }, { text: 'quormex', real: false }
+  ], correct: ['resilience', 'cognition', 'empathy', 'perception'],
+    explanationEN: "Psychology vocabulary. 'Resilience' means bouncing back from difficulty, 'cognition' means mental thinking processes, 'empathy' means understanding others' feelings, 'perception' means how you interpret what you sense.",
+    explanationUR: "'Resilience' matlab hai mushkil ke baad phir uthna. 'Cognition' matlab hai dimaag ki sochne ki salahiyat. 'Empathy' matlab hai doosron ka dard samajhna. 'Perception' matlab hai kisi cheez ko aap kaise dekhte hain." }),
+  q({ id: 'rs26', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Environment and climate vocabulary.', tip: 'DET fakes mimic real suffixes like -tion and -ity.', words: [
+    { text: 'erosion', real: true }, { text: 'glintrave', real: false }, { text: 'biodiversity', real: true },
+    { text: 'torflish', real: false }, { text: 'precipitation', real: true }, { text: 'snazzwort', real: false },
+    { text: 'watershed', real: true }, { text: 'blivnex', real: false }
+  ], correct: ['erosion', 'biodiversity', 'precipitation', 'watershed'],
+    explanationEN: "Environment words. 'Erosion' means land wearing away, 'biodiversity' means variety of life, 'precipitation' means rain/snow, 'watershed' is an area that drains into a river.",
+    explanationUR: "'Erosion' matlab hai zameen ka dhire dhire ghisna. 'Biodiversity' matlab hai kitni qisam ki zindagi ek jagah pai jaye. 'Precipitation' matlab hai barish ya barf. 'Watershed' matlab hai woh area jo ek nadi mein paani dalta hai." }),
+  q({ id: 'rs27', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Business and economics terms.', tip: 'Over-selecting fakes hurts more than missing one real word.', words: [
+    { text: 'revenue', real: true }, { text: 'quandvax', real: false }, { text: 'deficit', real: true },
+    { text: 'glivnor', real: false }, { text: 'subsidiary', real: true }, { text: 'snorvent', real: false },
+    { text: 'leverage', real: true }, { text: 'clamvish', real: false }
+  ], correct: ['revenue', 'deficit', 'subsidiary', 'leverage'],
+    explanationEN: "Business vocabulary. 'Revenue' is income earned, 'deficit' means spending more than you earn, 'subsidiary' is a company owned by another, 'leverage' means using borrowed resources to increase potential return.",
+    explanationUR: "'Revenue' matlab hai kamai. 'Deficit' matlab hai kharch zyada, kamai kam. 'Subsidiary' matlab hai ek company jo doosri badi company ki maliki mein ho. 'Leverage' matlab hai doosron ke resources se apna faida uthana." }),
+  q({ id: 'rs28', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Medical and health vocabulary.', tip: 'First instinct is often right on DET.', words: [
+    { text: 'diagnosis', real: true }, { text: 'trexloid', real: false }, { text: 'chronic', real: true },
+    { text: 'blivdrop', real: false }, { text: 'prognosis', real: true }, { text: 'snorlgate', real: false },
+    { text: 'pathogen', real: true }, { text: 'wrevnax', real: false }
+  ], correct: ['diagnosis', 'chronic', 'prognosis', 'pathogen'],
+    explanationEN: "Medical vocabulary. 'Diagnosis' is identifying a disease, 'chronic' means long-lasting, 'prognosis' is the expected outcome of a disease, 'pathogen' is a microorganism that causes disease.",
+    explanationUR: "'Diagnosis' matlab hai bimari pakadna. 'Chronic' matlab hai jo lambe arsay tak rahe. 'Prognosis' matlab hai bimari ka kya natija niklay ga. 'Pathogen' matlab hai woh bacteria ya virus jo bimari karta hai." }),
+  q({ id: 'rs29', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Formal connectors used in essays.', tip: 'Real academic words collocate naturally in sentences.', words: [
+    { text: 'albeit', real: true }, { text: 'branthole', real: false }, { text: 'whereas', real: true },
+    { text: 'snozzwort', real: false }, { text: 'nonetheless', real: true }, { text: 'quiblax', real: false },
+    { text: 'furthermore', real: true }, { text: 'mortish', real: false }
+  ], correct: ['albeit', 'whereas', 'nonetheless', 'furthermore'],
+    explanationEN: "These are linking/connector words used in formal writing. 'Albeit' means although, 'whereas' shows contrast, 'nonetheless' means despite that, 'furthermore' adds another point.",
+    explanationUR: "'Albeit' matlab hai 'halanke'. 'Whereas' matlab hai 'jabke' — do cheezein compare karna. 'Nonetheless' matlab hai 'phir bhi'. 'Furthermore' matlab hai 'is ke ilawa' — aur baat add karna." }),
+  q({ id: 'rs30', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Words about speaking and writing clearly.', tip: 'Nonsense words often have odd consonant clusters.', words: [
+    { text: 'scrutinize', real: true }, { text: 'blivtash', real: false }, { text: 'eloquent', real: true },
+    { text: 'snorvent', real: false }, { text: 'articulate', real: true }, { text: 'quandlex', real: false },
+    { text: 'verbose', real: true }, { text: 'mortavex', real: false }
+  ], correct: ['scrutinize', 'eloquent', 'articulate', 'verbose'],
+    explanationEN: "Language-related vocabulary. 'Scrutinize' means to examine carefully, 'eloquent' means well-spoken and persuasive, 'articulate' means expressing clearly, 'verbose' means using too many words.",
+    explanationUR: "'Scrutinize' matlab hai bohot gehri nazar se dekhna. 'Eloquent' matlab hai jo bohot acha aur convincing bol sake. 'Articulate' matlab hai apni baat clearly express karna. 'Verbose' matlab hai zyada hi zyada words use karna — bohot lamba bolta ho jo." }),
+  q({ id: 'rs31', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Advanced adjectives for attitudes and traits.', tip: 'Mix of real and fake — do not assume a pattern by position.', words: [
+    { text: 'inevitable', real: true }, { text: 'snorzive', real: false }, { text: 'susceptible', real: true },
+    { text: 'clentrix', real: false }, { text: 'ambivalent', real: true }, { text: 'wexmond', real: false },
+    { text: 'meticulous', real: true }, { text: 'blivance', real: false }
+  ], correct: ['inevitable', 'susceptible', 'ambivalent', 'meticulous'],
+    explanationEN: "'Inevitable' means it cannot be avoided, 'susceptible' means easily affected or harmed, 'ambivalent' means having mixed feelings, 'meticulous' means paying careful attention to detail.",
+    explanationUR: "'Inevitable' matlab hai jo rokne se bhi na ruke. 'Susceptible' matlab hai jo jaldi influence ya nuqsan ho jaye. 'Ambivalent' matlab hai dono taraf ki feeling ho aik saath. 'Meticulous' matlab hai har chhoti baat ka dhyan rakhne wala." }),
+  q({ id: 'rs32', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Political and civic vocabulary.', tip: 'Only select words you could use in a real sentence.', words: [
+    { text: 'indigenous', real: true }, { text: 'florptane', real: false }, { text: 'sovereign', real: true },
+    { text: 'quibnor', real: false }, { text: 'referendum', real: true }, { text: 'trelvax', real: false },
+    { text: 'bureaucracy', real: true }, { text: 'snorvish', real: false }
+  ], correct: ['indigenous', 'sovereign', 'referendum', 'bureaucracy'],
+    explanationEN: "Political/social vocabulary. 'Indigenous' means originally from a place, 'sovereign' means having supreme authority, 'referendum' is a public vote on one issue, 'bureaucracy' is a complex official system.",
+    explanationUR: "'Indigenous' matlab hai jo originally usi jagah ka ho. 'Sovereign' matlab hai jo sabse upar ho, kisi ke upar na ho. 'Referendum' matlab hai public ka vote ek khas issue par. 'Bureaucracy' matlab hai sarkari kaam karna ka woh complex system." }),
+  q({ id: 'rs33', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Academic verbs about making things better or worse.', tip: 'Watch for near-opposites like mitigate vs exacerbate.', words: [
+    { text: 'mitigate', real: true }, { text: 'snazzwort', real: false }, { text: 'exacerbate', real: true },
+    { text: 'quindlep', real: false }, { text: 'alleviate', real: true }, { text: 'wexbrint', real: false },
+    { text: 'perpetuate', real: true }, { text: 'clorfish', real: false }
+  ], correct: ['mitigate', 'exacerbate', 'alleviate', 'perpetuate'],
+    explanationEN: "Action verbs used in academic writing. 'Mitigate' means to reduce harm, 'exacerbate' means to make worse, 'alleviate' means to ease or reduce, 'perpetuate' means to cause something to continue.",
+    explanationUR: "'Mitigate' matlab hai nuqsan ya takleef kam karna. 'Exacerbate' matlab hai cheez ko aur bura banana — ULTA hai mitigate ka. 'Alleviate' matlab hai halka karna. 'Perpetuate' matlab hai kisi cheez ko chalate rehna." }),
+  q({ id: 'rs34', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Research and study methodology words.', tip: 'Latin/Greek roots often signal real academic words.', words: [
+    { text: 'empirical', real: true }, { text: 'brastnel', real: false }, { text: 'theoretical', real: true },
+    { text: 'snorplax', real: false }, { text: 'longitudinal', real: true }, { text: 'mortavex', real: false },
+    { text: 'quantitative', real: true }, { text: 'wexlard', real: false }
+  ], correct: ['empirical', 'theoretical', 'longitudinal', 'quantitative'],
+    explanationEN: "Research methodology vocabulary. 'Empirical' means based on observation/experiment, 'theoretical' means based on theory, 'longitudinal' means studying over a long period, 'quantitative' means using numbers.",
+    explanationUR: "'Empirical' matlab hai jo dekhne aur test karne se pata chale. 'Theoretical' matlab hai jo sirf theory par ho. 'Longitudinal' matlab hai lambe arsay tak koi cheez follow karna. 'Quantitative' matlab hai numbers se maapna." }),
+  q({ id: 'rs35', type: 'read-select', qtext: 'Select the real English words.', qsub: 'Tap all words that exist. Ignore fake words.', hint: 'Personality adjectives — advanced level.', tip: 'Speed matters — trust words you have read before.', words: [
+    { text: 'tenacious', real: true }, { text: 'snorblat', real: false }, { text: 'voracious', real: true },
+    { text: 'blivnax', real: false }, { text: 'gregarious', real: true }, { text: 'quormex', real: false },
+    { text: 'capricious', real: true }, { text: 'clentrix', real: false }
+  ], correct: ['tenacious', 'voracious', 'gregarious', 'capricious'],
+    explanationEN: "Advanced adjectives describing personality/behavior. 'Tenacious' means not giving up, 'voracious' means wanting a lot of something, 'gregarious' means very social and outgoing, 'capricious' means changing mood unpredictably.",
+    explanationUR: "'Tenacious' matlab hai jo hare na, laga raha. 'Voracious' matlab hai jo bohot zyada chahe — khaana ya padhna kuch bhi. 'Gregarious' matlab hai bohot milnsar insaan. 'Capricious' matlab hai jo kabhi kuch kabhi kuch — moody insaan." }),
+
   // —— Fill in the Blanks (10+) ——
   q({ id: 'fb01', type: 'fill-blanks', qtext: 'The research findings were _____ by peer review before publication.', qsub: 'Choose the best word.', hint: 'You need a verb meaning checked or confirmed.', tip: 'Context before and after the blank defines word class.', options: ['vindicated', 'scrutinized', 'fabricated', 'dismissed'], correct: 1 }),
   q({ id: 'fb02', type: 'fill-blanks', qtext: 'Urban planners must _____ green space in new developments.', qsub: 'Academic vocabulary.', hint: 'Think integrate or include formally.', tip: 'Four options are close in register — pick the collocate.', options: ['incorporate', 'abandon', 'neglect', 'obscure'], correct: 0 }),
@@ -394,7 +501,7 @@ const QUESTION_BANK = [
 
 // Session picks ~30 questions: weighted by section
 const SESSION_TARGETS = {
-  adaptive: { 'read-select': 4, 'fill-blanks': 4, 'read-complete': 2 },
+  adaptive: { 'read-select': 6, 'fill-blanks': 4, 'read-complete': 2 },
   writing: { 'write-photo': 2, 'interactive-writing': 2, 'writing-sample': 1 },
   reading: { 'complete-sentences': 2, 'complete-passage': 2, 'highlight-answer': 2, 'identify-idea': 2, 'title-passage': 1 }
 };
